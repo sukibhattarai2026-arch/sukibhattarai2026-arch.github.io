@@ -1,1 +1,1 @@
-# sukibhattarai2026-arch.github.io
+# sukibhattarai2026-arch.github.i
