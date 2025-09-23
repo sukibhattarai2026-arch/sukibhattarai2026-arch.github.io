@@ -1,33 +1,396 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weekly Updates</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weekly Updates (Pure HTML)</title>
   <style>
+    :root {
+      --bg: #d4d7e3;
+      --panel: #bcc1cb;
+      --text: #0a0c0e;
+      --muted: #a7b0bb;
+      --accent: #0e3b6c;
+      --ring: rgba(16, 112, 214, 0.35);
+    }
+    html, body { height: 100%; }
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
-      color: #333;
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
     }
-    h1 {
-      text-align: center;
-      color: #444;
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .title { font-size: clamp(28px, 3vw, 40px); margin: 0 0 8px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+
+    .grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--panel); border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+    .sidebar { padding: 8px; }
+    .list { list-style: none; margin: 0; padding: 8px; max-height: 70vh; overflow: auto; }
+    .btn {
+      display: block; width: 100%; text-align: left; padding: 12px 14px; margin: 6px 0;
+      color: var(--text); background: transparent; border: 1px solid transparent;
+      border-radius: 12px; cursor: pointer; font: inherit;
     }
-    iframe {
-      width: 100%;
-      height: 80vh; /* 80% of screen height */
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
+    .btn:hover { background: rgba(255,255,255,.04); }
+    .btn[aria-current="true"] { background: rgba(79,163,255,.08); border-color: var(--ring); }
+
+    .content { padding: 20px 24px; }
+    .content h2 { margin-top: 0; }
+    .muted { color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+    a { color: var(--accent); }
   </style>
 </head>
 <body>
-  <h1>Weekly Updates</h1>
-  <p style="text-align:center;">This page shows the live document of weekly meeting notes.</p>
+  <main class="wrap">
+    <h1 class="title">Weekly Updates</h1>
+    <!-- <p class="sub">Click a week on the left to view its content. Tip: You can deep‑link to a week with a hash like <code>#week-1</code>.</p> -->
 
-  <!-- Replace the link below with your Google Doc embed link -->
-  <iframe src="https://docs.google.com/document/d/1ByI0O4BzBb0k0TuMhDp0bMRD2Fao5J8r92QLBGfU2dk/preview"></iframe>
+    <div class="grid">
+      <!-- Sidebar: Week list (auto-generated from sections below) -->
+      <aside class="panel sidebar">
+        <ul class="list" id="week-list" role="tablist" aria-label="Weeks"></ul>
+      </aside>
+
+      <!-- Main: Week content -->
+      <section class="panel content" id="content" role="region" aria-live="polite"></section>
+    </div>
+
+    <!--
+      HOW TO ADD CONTENT (no frameworks needed)
+      ----------------------------------------
+      1) Copy a <section class="week" data-week="week-#"> block below.
+      2) Change data-week (must be unique) and the <h2> title.
+      3) Paste your text, lists, tables, images inside the block.
+      4) Done. The sidebar and routing update automatically.
+
+      You can link directly to a week with #week-1, #week-2, etc.
+    -->
+
+    <!-- Your week entries live here (they stay hidden; JS reads them) -->
+    <template id="weeks-source">
+      <section class="week" data-week="week-1">
+        <h2>Week 1 — Sept 11</h2>
+       <h1>Research Journal Website</h1>
+
+<p>Make a website with a research journal, where you will collect notes for each meeting.</p>
+
+<h2>Projects</h2>
+<ol>
+  <li>
+    Digging into our dataset for flare predictions (<strong>SWAN-SF</strong>) and supervised machine learning through 
+    <strong>Random Forest</strong> and <strong>kNN classifier</strong>.
+  </li>
+  <li>
+    Using <strong>CCMC score cards</strong> and <strong>ensembling techniques</strong> to build a more robust/accurate 
+    combination of space weather simulations.
+  </li>
+</ol>
+
+<hr />
+
+<h2>Topic Selection</h2>
+<p>Pick <strong>1 or 2</strong> from the following topics:</p>
+<ul>
+  <li>Thompson sampling</li>
+  <li>Multi-armed bandit algorithm</li>
+  <li>Monte Carlo search tree</li>
+  <li>Random Forest</li>
+  <li>kNN Classifier</li>
+  <li>SWAN-SF dataset</li>
+</ul>
+
+<div>
+  <h4>KNN</h4>
+  <ul>
+    <li>The K - nearest algorithm is a classification algorithm most commonly used for classification but can be used for regression as well.</li>
+    <li>Based on human cognition.</li>
+    <li>Lazy learner: as it does not make an actual model until and unless it has to predict a new data point.</li>
+    <li>Instance based: There is no global model. The prediction is based on the comparison of the query points with the training points.</li>
+    <li>Non-parametric: No assumption about the underlying distribution of data.</li>
+  </ul>
+
+  <h4>Probabilistic interpretation: P(Y=c∣X=x)</h4>
+  <ul>
+    <li>Estimate the posterior probability of a new data point belonging to a particular class.</li>
+    <li>Quantify the uncertainty of that assignment.</li>
+  </ul>
+
+  <h4>Algorithm Workflow:</h4>
+  <ul>
+    <li>Choose hyperparameters (k, distance metric)</li>
+    <li>Compute distances d(x, xi).</li>
+    <li>Select k nearest neighbors.</li>
+    <li>Take the majority of the classes in Classification or take the average in the regression.</li>
+  </ul>
+
+  <h4>Hyperparameter K</h4>
+  <ul>
+    <li>Trade-off between Bias and Variance
+      <ul>
+        <li>If k is too small, it will be very sensitive to the outliers. High Variance, Overfitting</li>
+        <li>If k is too large, it will include many examples from the other class group. High Bias, Underfitting</li>
+      </ul>
+    </li>
+    <li>Use cross-validation, where we split the data into train-test and experiment with different values of K.</li>
+    <li>Rule of thumb is k &lt; sqrt(n), where n is the number of training examples.</li>
+    <li>K should also be an odd number.</li>
+  </ul>
+
+  <h4>Distance Metric</h4>
+  <p>The accuracy highly depends on the choice of the distance metric. Example: Q is near to C if Euclidean is considered, and near to D if Cosine is considered.</p>
+
+  <h4>Few Considerations</h4>
+  <ul>
+    <li><h5>Curse of Dimensionality</h5>
+      <p>To reduce this curse we use feature selection or dimensionality reduction. Distance loses meaning in high dimensions.</p>
+      <h6>Feature Selection</h6>
+      <ul>
+        <li>If the dimension is too high, the distance between two points becomes less distinguishable.</li>
+        <li><strong>Filter method:</strong> Compares each feature with the target. 
+          <ul>
+            <li>Information gain, Chi-square, Correlation-based feature selection</li>
+          </ul>
+        </li>
+        <li><strong>Wrapper Method:</strong> Tests multiple combinations of features and selects the best.
+          <ul>
+            <li>Forward selection: Start with one feature, add features until no improvement.</li>
+            <li>Backward selection: Start with all features and remove one at a time.</li>
+          </ul>
+        </li>
+        <li><strong>Embedded Method:</strong> Feature selection is built into the algorithm (e.g., weighted KNN).</li>
+      </ul>
+
+      <h6>Dimensionality Reduction</h6>
+      <ul>
+        <li>Eliminate attributes that do not impact decision boundaries.</li>
+        <li>Remove redundant attributes, reducing overfitting.</li>
+      </ul>
+    </li>
+
+    <li><h5>Feature Scaling</h5>
+      <ul>
+        <li>Normalize the scale. Linearly scale each dimension to have mean 0 and variance 1.</li>
+        <li>Use either Standard Scaler or Min-Max Scaler.</li>
+      </ul>
+    </li>
+
+    <li><h5>Complexity</h5>
+      <p>For brute force nearest neighbor search: O(n·d) for n samples and d dimensions. Optimized with KD-tree or Ball-tree.</p>
+      <ul>
+        <li><strong>KD tree:</strong> Divides the space into multidimensional regions. Best for low dimensions.</li>
+        <li><strong>Ball tree:</strong> Groups data into hyperspheres. Best for high dimensions.</li>
+      </ul>
+    </li>
+
+    <li><h5>Imbalanced Data</h5>
+      <p>KNN struggles with imbalanced data since the majority class dominates. Solution: resampling.</p>
+    </li>
+  </ul>
+
+  <h4>Decision Boundary</h4>
+  <ul>
+    <li>KNN does not explicitly compute decision boundaries, but they can be inferred.</li>
+    <li>In 2D, this is shown via Voronoi diagrams:
+      <ul>
+        <li>Shows how input space is divided into classes.</li>
+        <li>Each line segment is equidistant between two opposing points.</li>
+        <li>Boundaries change depending on K.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h4>Weighted KNN</h4>
+  <p>Assigns more weight to closer neighbors.</p>
+
+  <h4>Adaptive Neighborhood Selection (radius-based KNN)</h4>
+  <p>Instead of k neighbors, take all points within a radius r. Considers density.</p>
+
+  <h4>Advantages</h4>
+  <ul>
+    <li>Easy to implement and debug.</li>
+    <li>Can be used on data that cannot be converted to feature vectors.</li>
+  </ul>
+
+  <h4>Disadvantages</h4>
+  <ul>
+    <li>Complexity issues in high dimensions.</li>
+    <li>Sensitive to noise.</li>
+  </ul>
+</div>
+
+<div>
+  <h4>Random Forest</h4>
+  <p>
+    This is an ensemble method of decision trees where multiple trees vote for the most popular outcome. 
+    Though decision trees have their own advantages (scale irrelevant, robust to irrelevant features, very interpretable), 
+    they are prone to overfitting. As depth increases, bias decreases while variance increases.
+  </p>
+  <p>
+    To resolve this issue, the Random Forest classifier comes into play. 
+    Many decision trees are constructed, and the average or majority vote is considered.
+  </p>
+
+  <h5>Decision Tree</h5>
+  <ul>
+    <li>Starts with the root node.</li>
+    <li>Splits nodes into sub-branches until leaf nodes are reached.</li>
+    <li><strong>Splitting Criteria:</strong>
+      <ul>
+        <li><strong>Entropy:</strong> Measures randomness. Lower entropy is better.</li>
+        <li><strong>Gini Index:</strong> Probability of misclassification. Lower is better, and preferred due to computational efficiency.</li>
+      </ul>
+    </li>
+    <li><strong>Information Gain:</strong> Amount of information extracted from a decision tree. Higher is better.</li>
+  </ul>
+
+  <h5>Bootstrapping Aggregation (Bagging)</h5>
+  <ul>
+    <li>Trains multiple base models independently and in parallel.</li>
+    <li>Subsets of training data are created by random sampling with replacement.</li>
+    <li>Ensemble training on slightly different data reduces variance and improves accuracy.</li>
+  </ul>
+
+  <h5>Python Implementation Example</h5>
+  <pre>
+from sklearn.ensemble import BaggingClassifier 
+from sklearn.tree import DecisionTreeClassifier 
+
+bag_clf = BaggingClassifier(
+    DecisionTreeClassifier(), 
+    n_estimators=500, 
+    max_samples=100, 
+    bootstrap=True, 
+    n_jobs=-1
+) 
+bag_clf.fit(X_train, y_train) 
+y_pred = bag_clf.predict(X_test)
+  </pre>
+  <p>
+    <strong>n_estimators</strong>: Number of trees. <br>
+    <strong>max_samples</strong>: Number of samples per tree. <br>
+    <strong>bootstrap=True</strong>: Enables sampling with replacement. <br>
+    <strong>n_jobs=-1</strong>: Utilizes all available CPUs. 
+  </p>
+
+  <h5>Feature Importance</h5>
+  <ul>
+    <li><strong>Mean Decrease Gini (classification):</strong> Average decrease in Gini impurity when a feature is used for splitting.
+      <ul>
+        <li>Calculate Gini index across all trees.</li>
+        <li>Sum decreases for a feature across all trees.</li>
+        <li>Divide by total number of trees to find the average.</li>
+      </ul>
+    </li>
+    <li><strong>Mean Decrease Accuracy (regression):</strong> Average decrease in accuracy when a feature is permuted or removed.</li>
+  </ul>
+
+  <h5>Out-of-Bag (OOB) Score</h5>
+  <ul>
+    <li>Samples not used in training a given tree are "out of bag".</li>
+    <li>OOB score = number of correctly predicted OOB rows.</li>
+    <li>Helps prevent data leakage, yielding lower variance and better generalization.</li>
+  </ul>
+
+  <h5>Hyperparameters</h5>
+  <ul>
+    <li><strong>Number of Trees (B):</strong> More trees → better predictions, but higher computational cost.</li>
+    <li><strong>Features per Split (mtry):</strong>
+      <ul>
+        <li>Small mtry → less correlated trees, high variance, low bias.</li>
+        <li>Large mtry → stronger splits, low bias, high variance.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h5>Computational Aspect</h5>
+  <p>Time complexity: O(B * n log n), where n = number of training samples.</p>
+
+  <h5>Advantages</h5>
+  <ul>
+    <li>Versatile: Performs well even without fine-tuned hyperparameters.</li>
+    <li>Reduces overfitting by aggregating multiple decision trees.</li>
+  </ul>
+
+  <h5>Disadvantages</h5>
+  <ul>
+    <li>Computationally expensive: Large forests require significant training time. 
+        Mitigated by parallel training.</li>
+    <li>Reduced interpretability compared to a single decision tree.</li>
+  </ul>
+</div>
+
+
+
+      </section>
+
+      <section class="week" data-week="week-2">
+        <h2>Week 2 — Sept 25</h2>
+        <!-- <ol>
+          <li>Key accomplishment #1</li>
+          <li>Key accomplishment #2</li>
+          <li>Learning & notes</li>
+        </ol> -->
+      </section>
+
+      
+    </template>
+  </main>
+
+  <script>
+    // Grab week sections from the template, build the sidebar, and handle routing.
+    const src = document.getElementById('weeks-source');
+    const weeks = Array.from(src.content.querySelectorAll('.week')).map(el => ({
+      id: el.getAttribute('data-week'),
+      title: el.querySelector('h2')?.textContent?.trim() || el.getAttribute('data-week'),
+      html: el.innerHTML.trim()
+    })).sort((a, b) => {
+      const na = Number(a.id.match(/\d+/)?.[0] || 0);
+      const nb = Number(b.id.match(/\d+/)?.[0] || 0);
+      return na - nb;
+    });
+
+    const list = document.getElementById('week-list');
+    const content = document.getElementById('content');
+
+    function renderList(activeId) {
+      list.innerHTML = '';
+      weeks.forEach(w => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.type = 'button';
+        btn.role = 'tab';
+        btn.setAttribute('aria-selected', String(w.id === activeId));
+        if (w.id === activeId) btn.setAttribute('aria-current', 'true');
+        btn.textContent = w.title;
+        btn.addEventListener('click', () => navigate(w.id));
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }
+
+    function renderContent(activeId) {
+      const w = weeks.find(x => x.id === activeId) || weeks[0];
+      if (!w) { content.innerHTML = '<p class="muted">No weeks yet. Add a section in the template.</p>'; return; }
+      content.innerHTML = `<h2>${w.title}</h2>${w.html}`;
+    }
+
+    function navigate(id) {
+      if (!id) return;
+      if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+      renderList(id);
+      renderContent(id);
+    }
+
+    // Initialize from hash or default to first week
+    window.addEventListener('hashchange', () => navigate(location.hash.replace('#','')));
+    navigate(location.hash.replace('#','') || (weeks[0] && weeks[0].id));
+  </script>
 </body>
 </html>
