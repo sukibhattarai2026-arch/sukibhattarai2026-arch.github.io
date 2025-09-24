@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Weekly Updates (Pure HTML)</title>
   <style>
-      :root {
+    :root {
   --bg: #f9fafb;        /* soft near-white background */
   --panel: #e6edf3;     /* light pastel blue/grey panels */
   --text: #1a1c1e;      /* dark but not harsh black text */
@@ -13,6 +13,7 @@
   --accent: #3b82f6;    /* gentle blue accent */
   --ring: rgba(59, 130, 246, 0.3); /* subtle highlight for focus rings */
 }
+
     html, body { height: 100%; }
     body {
       margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
@@ -91,7 +92,6 @@
     combination of space weather simulations.
   </li>
 </ol>
-
 <hr />
 
 <h2>Topic Selection</h2>
@@ -121,6 +121,10 @@
     <li>Quantify the uncertainty of that assignment.</li>
   </ul>
 
+  <figure class="research-figure">
+  <img src="formal defination.png" alt="KNN Classification Example" />
+</figure>
+
   <h4>Algorithm Workflow:</h4>
   <ul>
     <li>Choose hyperparameters (k, distance metric)</li>
@@ -144,6 +148,14 @@
 
   <h4>Distance Metric</h4>
   <p>The accuracy highly depends on the choice of the distance metric. Example: Q is near to C if Euclidean is considered, and near to D if Cosine is considered.</p>
+
+  <figure class="research-figure">
+  <img src="distance_metric.png" alt="KNN Classification Example" />
+</figure>
+
+<figure class="research-figure">
+  <img src="distance.png" alt="KNN Classification Example" />
+</figure>
 
   <h4>Few Considerations</h4>
   <ul>
@@ -173,12 +185,20 @@
       </ul>
     </li>
 
+    <figure class="research-figure">
+  <img src="dimension_reduction.png" alt="KNN Classification Example" />
+</figure>
+
     <li><h5>Feature Scaling</h5>
       <ul>
         <li>Normalize the scale. Linearly scale each dimension to have mean 0 and variance 1.</li>
         <li>Use either Standard Scaler or Min-Max Scaler.</li>
       </ul>
     </li>
+
+    <figure class="research-figure">
+  <img src="minmax.png" alt="KNN Classification Example" />
+</figure>
 
     <li><h5>Complexity</h5>
       <p>For brute force nearest neighbor search: O(n·d) for n samples and d dimensions. Optimized with KD-tree or Ball-tree.</p>
@@ -207,6 +227,14 @@
 
   <h4>Weighted KNN</h4>
   <p>Assigns more weight to closer neighbors.</p>
+
+  <figure class="research-figure">
+  <img src="wKnn.png" alt="KNN Classification Example" />
+</figure>
+
+<figure class="research-figure">
+  <img src="wkk2.png" alt="KNN Classification Example" />
+</figure>
 
   <h4>Adaptive Neighborhood Selection (radius-based KNN)</h4>
   <p>Instead of k neighbors, take all points within a radius r. Considers density.</p>
@@ -249,12 +277,20 @@
     <li><strong>Information Gain:</strong> Amount of information extracted from a decision tree. Higher is better.</li>
   </ul>
 
+  <figure class="research-figure">
+  <img src="rf_3.png" alt="KNN Classification Example" />
+</figure>
+
   <h5>Bootstrapping Aggregation (Bagging)</h5>
   <ul>
     <li>Trains multiple base models independently and in parallel.</li>
     <li>Subsets of training data are created by random sampling with replacement.</li>
     <li>Ensemble training on slightly different data reduces variance and improves accuracy.</li>
   </ul>
+
+  <figure class="research-figure">
+  <img src="bagging.png" alt="KNN Classification Example" />
+</figure>
 
   <h5>Python Implementation Example</h5>
   <pre>
@@ -290,6 +326,10 @@ y_pred = bag_clf.predict(X_test)
     <li><strong>Mean Decrease Accuracy (regression):</strong> Average decrease in accuracy when a feature is permuted or removed.</li>
   </ul>
 
+  <figure class="research-figure">
+  <img src="gini.png" alt="KNN Classification Example" />
+</figure>
+
   <h5>Out-of-Bag (OOB) Score</h5>
   <ul>
     <li>Samples not used in training a given tree are "out of bag".</li>
@@ -323,6 +363,9 @@ y_pred = bag_clf.predict(X_test)
         Mitigated by parallel training.</li>
     <li>Reduced interpretability compared to a single decision tree.</li>
   </ul>
+
+  <a href="https://colab.research.google.com/drive/1xA4syEVXdSapE-MNAPmKR25Wq9oXJ11Y#scrollTo=UBd5I9-RiEEd" target="_blank" rel="noopener noreferrer">Collab</a>
+
 </div>
 
 
