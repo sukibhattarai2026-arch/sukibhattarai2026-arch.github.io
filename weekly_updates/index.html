@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- in <head> or before </body> -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Weekly Updates (Pure HTML)</title>
@@ -397,6 +401,19 @@ y_pred = bag_clf.predict(X_test)
       <li>ROC — AUC</li>
       <li>HSS (Heidke Skill Score) and TSS (True Skill Statistic)</li>
     </ul>
+
+
+    <p>(How much I am better at finding real events)</p>
+<p>$$
+TSS = \frac{TP}{TP + FN} - \frac{FP}{FP + TN}
+$$</p>
+
+<p>(Forecast is better than random one)</p>
+<p>$$
+HSS = \frac{2 \times (TP \times TN - FN \times FP)}
+{(P \times (FN + TN) + (TP + FP) \times N)}
+$$</p>
+
 
   
 
