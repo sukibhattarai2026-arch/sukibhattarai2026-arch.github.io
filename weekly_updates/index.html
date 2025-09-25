@@ -148,7 +148,13 @@
 
   <h4>Distance Metric</h4>
   <p>The accuracy highly depends on the choice of the distance metric. Example: Q is near to C if Euclidean is considered, and near to D if Cosine is considered.</p>
-
+  <h2>Distance metrics in KNN</h2>
+    <ul>
+      <li><strong>Numerical:</strong> Euclidean, Manhattan</li>
+      <li><strong>Categorical:</strong> Hamming</li>
+      <li><strong>High-dimensional:</strong> Cosine, Jaccard</li>
+      <li><strong>Time series:</strong> DTW (Dynamic Time Warping)</li>
+    </ul>
   <figure class="research-figure">
   <img src="distance_metric.png" alt="KNN Classification Example" />
 </figure>
@@ -363,6 +369,38 @@ y_pred = bag_clf.predict(X_test)
         Mitigated by parallel training.</li>
     <li>Reduced interpretability compared to a single decision tree.</li>
   </ul>
+
+ 
+    <h1>Considerations during implementation</h1>
+
+    <h2>Class weight — Random Forest</h2>
+    <ul>
+      <li>If classes are imbalanced, assign weights to classes.</li>
+      <li>Common options:
+        <ul class="sub">
+          <li><strong>balanced</strong>: <span class="code">n_samples / (n_classes * np.bincount(y))</span></li>
+          <li><strong>balanced_subsample</strong>: uses only the bootstrap (bag) sample for each tree</li>
+          <li><strong>dictionary</strong>: create a dict mapping class → weight and pass it</li>
+        </ul>
+      </li>
+      <li><strong>SMOTE</strong> (Synthetic Minority Oversampling Technique) — often uses KNN:
+        <ul class="sub">
+          <li>Generates synthetic minority-class samples.</li>
+          <li>Synthesizes new points along the Euclidean line between minority neighbors.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>Evaluation metrics</h2>
+    <ul>
+      <li>Recall, Precision, F1-score</li>
+      <li>ROC — AUC</li>
+      <li>HSS (Heidke Skill Score) and TSS (True Skill Statistic)</li>
+    </ul>
+
+  
+
+
 
   <a href="https://colab.research.google.com/drive/1xA4syEVXdSapE-MNAPmKR25Wq9oXJ11Y#scrollTo=UBd5I9-RiEEd" target="_blank" rel="noopener noreferrer">Collab</a>
 
