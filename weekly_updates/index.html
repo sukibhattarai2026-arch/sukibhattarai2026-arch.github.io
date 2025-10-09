@@ -427,11 +427,317 @@ $$</p>
 
       <section class="week" data-week="week-2">
         <h2>Week 2 — Sept 25</h2>
-        <!-- <ol>
-          <li>Key accomplishment #1</li>
-          <li>Key accomplishment #2</li>
-          <li>Learning & notes</li>
-        </ol> -->
+        <!-- ✅ Paste this inside your <body> -->
+<div class="section">
+  <h3>Minkowski Distance</h3>
+  <p>Generalization of both Euclidean and Manhattan distances.</p>
+
+  <p>$$
+  D(x,y) = \left( \sum_{i=1}^n |x_i - y_i|^p \right)^{1/p}
+  $$</p>
+
+  <p>When \( p = 1 \), it becomes the <b>Manhattan</b> or <b>L1 norm</b>.
+  It measures the distance between two points along axes at right angles.</p>
+
+  <p>The two points are \( p=(p_1,p_2,p_3,\ldots,p_n) \) and \( q=(q_1,q_2,\ldots,q_n) \):</p>
+
+  <p>$$
+  d_T(p,q) = \|p - q\|_T = \sum_{i=1}^n |p_i - q_i|
+  $$</p>
+
+  <p>The distance becomes less meaningful as dimensionality increases, so feature scaling matters a lot.</p>
+
+  <h4>Applications</h4>
+  <ul>
+    <li>Path finding and Geographical Information Systems (GIS)</li>
+    <li>High-dimensional data (e.g., image processing, text analysis)</li>
+    <li>Clustering algorithms (reduce outlier impact)</li>
+    <li>Anomaly detection (identify outliers robustly)</li>
+  </ul>
+
+  <p>The set of points with the same Manhattan length \( \|x\|_1 = c \)
+  forms a diamond (square tilted \( 45^\circ \)), hence Manhattan distance is not rotation invariant.</p>
+
+  <h3>Euclidean Distance</h3>
+  <p><b>Properties:</b></p>
+  <ul>
+    <li>Symmetric for all points \( p, q \): \( d(p,q) = d(q,p) \)</li>
+    <li>Always positive</li>
+    <li>Triangle inequality: \( d(p,q) + d(q,r) \geq d(p,r) \)</li>
+  </ul>
+
+   <p>It is generally used in low dimensional continous data. </p>
+
+  <p>If a point is rotated around the origin, its Euclidean length \( \|x\|_2 \) remains constant.
+  Thus, Euclidean distance is rotation invariant.</p>
+
+  <h3>Chebyshev Distance</h3>
+  <ul>
+    <li>Measures the greatest distance between any coordinate dimensions (also called “chessboard distance”).</li>
+    <li>The Chebyshev distance between two vectors \( a \) and \( b \) is:</li>
+  </ul>
+
+  <p>$$
+  D(a,b) = \max(|a_i - b_i|)
+  $$</p>
+
+  <p>This is used when the worst case matters more than the average i.e the tolerance checking </p>
+
+  <p>$$
+  D_{\text{chebyshev}}(x,y) = \lim_{p \to \infty}
+  \left( \sum_i |x_i - y_i|^p \right)^{1/p} = \max_i |x_i - y_i|
+  $$</p>
+
+  <h4>Relations to Other Norms</h4>
+  <p>For any \( x \in \mathbb{R}^d \):</p>
+
+  <p>$$
+  \|x\|_\infty \leq \|x\|_2 \leq \|x\|_1, \quad
+  \|x\|_2 \leq \sqrt{d}\|x\|_\infty, \quad
+  \|x\|_1 \leq d\|x\|_\infty
+  $$</p>
+
+  <p>The higher the value of \( p \) in Minkowski distance, the smaller the magnitude of distance becomes.
+  The parameter \( p \) is usually tuned using cross-validation to optimize accuracy.</p>
+
+  <p>As \( p \) increases, the distance metric becomes more sensitive to larger differences along any single dimension</p>
+  <ul>
+    <li>When \( p \)=1: all dimensions contribute linearly → robust to outliers.</li>
+    <li>When \( p \)=2: alarge deviations dominate due to squaring.</li>
+    <li>When \( p  \to \infty \): only the largest coordinate difference matters → Chebyshev distance.</li>
+  </ul>
+
+  <p>Minkowski distance is not rotation invariant except for Euclidean case.</p>
+</div>
+
+
+<div class="section">
+  <h3>Kronecker Delta</h3>
+  <p>The Kronecker delta is a function of two variables, commonly denoted as \( \delta_{ij} \).</p>
+
+  <p>$$
+  \delta_{ij} =
+  \begin{cases}
+    0 & \text{if } i \neq j, \\
+    1 & \text{if } i = j.
+  \end{cases}
+  $$</p>
+
+  <p>The value is equal to 1 when the indices are equal, and 0 otherwise. This is equivalent to the components of the identity matrix.
+  For example, having row \( i \) and column \( j \), the element of the identity matrix is the same as the Kronecker delta:</p>
+
+  <p>$$
+  I_{ij} = \delta_{ij}
+  $$</p>
+
+  <h4>Properties of the Kronecker Delta</h4>
+
+  <p>$$
+  \sum_j \delta_{ij} a_j = a_i
+  $$</p>
+
+  <p>$$
+  \sum_i a_i \delta_{ij} = a_j
+  $$</p>
+
+  <p>$$
+  \sum_k \delta_{ik} \delta_{kj} = \delta_{ij}
+  $$</p>
+</div>
+
+<h3>Curse of Dimensionality</h3>
+
+  <p>
+    It refers to the problem that arises due to having many dimensions or many features:
+  </p>
+  <ul>
+    <li>Volume grows exponentially.</li>
+    <li>Data becomes sparse, making distance lose its meaning.</li>
+  </ul>
+
+  <p>
+    Hence all of the distance metrics lose their meaning. As all points start to look isolated, KNN tends to overfit.  
+    Computation becomes \( O(n \cdot d) \).
+  </p>
+
+  <p>
+    Let \( l \) be the edge of the smallest hypercube that contains all the k-nearest neighbours, then  
+    the volume of the cube can be written as \( l^d \).  
+    Also, the volume of the cube that has \( k \) points out of \( n \) total points can be written as \( \frac{k}{n} \).
+  </p>
+
+  <p>
+    \[
+    l \sim \left(\frac{k}{n}\right)^{1/d}
+    \]
+  </p>
+
+  <p>If we consider a constant value of 1000 in 10, we can see that:</p>
+
+<table style="
+  border-collapse: collapse;
+  width: 60%;
+  margin: 20px 0;
+  background: #ffffff;
+  border: 2px solid #c2c9d6;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+">
+  <thead style="background-color: #e9eef6;">
+    <tr>
+      <th style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">\( d \)</th>
+      <th style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">\( l\)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">2</td>
+      <td style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">0.1</td>
+    </tr>
+    <tr style="background-color: #f7f9fc;">
+      <td style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">10</td>
+      <td style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">0.63</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">100</td>
+      <td style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">0.955</td>
+    </tr>
+    <tr style="background-color: #f7f9fc;">
+      <td style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">1000</td>
+      <td style="border: 1px solid #aab2bd; padding: 10px; text-align: center;">0.954</td>
+    </tr>
+  </tbody>
+</table>
+
+
+  <p>
+    We can see that as the value of \( d \) (i.e., the dimension) increases, the length \( l \) of the small cube becomes nearly equal to that of the big cube.  
+    This means the single nearest neighbour seems to cover the entire cube space.  
+    That’s what is meant by *losing the meaning of distance*.
+  </p>
+
+  <h4>Mitigation</h4>
+
+  <ul>
+    <li><strong>Feature Selection</strong>
+      <ul>
+        <li>Remove irrelevant features and keep only the relevant ones, identified via domain knowledge or methods such as mutual information or variance thresholding.</li>
+        <li><strong>Filter Method:</strong>
+          <ul>
+            <li>Compares each feature with the target; features with high correlation are selected.</li>
+            <li>Examples: Information Gain, Chi-square, Correlation-based Feature Selection (Pearson for continuous, ANOVA for categorical).</li>
+          </ul>
+        </li>
+        <li><strong>Wrapper Method:</strong>
+          <ul>
+            <li>Tests multiple feature combinations and chooses the best one.</li>
+            <li>Forward Selection: Start with one feature, keep adding until performance stops improving.</li>
+            <li>Backward Selection: Start with all features and remove one at a time.</li>
+          </ul>
+        </li>
+        <li><strong>Embedded Method:</strong>
+          <ul>
+            <li>Feature selection is built into the algorithm — for example, weighted KNN.</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+
+    <li><strong>Dimensionality Reduction</strong>
+      <ul>
+        <li>PCA (Principal Component Analysis)</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h2>KD Tree</h2>
+  <p>
+    A KD Tree (K-Dimensional Tree) is a data structure that organizes data points in k-dimensional space.
+    It recursively divides the space into half-spaces using hyperplanes that are orthogonal to one of the coordinate axes.
+  </p>
+
+  <h3>Algorithm</h3>
+  <ul>
+    <li>Choose a splitting dimension (usually cycles through axes, e.g., x, y, z, …).</li>
+    <li>Find the median point along that dimension (to balance the tree).</li>
+    <li>Create a node storing that point and split the dataset into:
+      <ul>
+        <li><strong>Left subtree</strong>: points with smaller coordinate values.</li>
+        <li><strong>Right subtree</strong>: points with larger coordinate values.</li>
+      </ul>
+    </li>
+    <li>Recurse on both subsets.</li>
+  </ul>
+
+  <p>
+    The result is a balanced binary tree with construction time complexity of:
+    \[
+    O(n \log n)
+    \]
+  </p>
+
+  <h3>Nearest Neighbor Search</h3>
+  <ul>
+    <li>Move through the binary tree until the nearest plane is found.</li>
+    <li>Keep track of the current best distance \( r \) — the radius of the hypersphere around the query point \( q \).</li>
+    <li>Check if the hypersphere intersects the splitting plane.</li>
+    <li>If it does, recursively search the other branch — a closer neighbor might exist across the boundary.</li>
+  </ul>
+
+  <h3>Adding a Node</h3>
+  <p>
+    Similar to a Binary Search Tree insertion — find the correct leaf position based on the splitting dimension.
+  </p>
+
+  <h3>Deleting a Node</h3>
+  <ul>
+    <li>If the node to be deleted has children on the right, find the node with the <strong>minimum value</strong> along the target axis from the right subtree.</li>
+    <li>Otherwise, find the point with the <strong>maximum value</strong> from the subtree rooted at the left child.</li>
+  </ul>
+
+  <p>
+    Performance deteriorates rapidly with dimensionality when \( d > 20 \), due to the <em>curse of dimensionality</em> — most points become almost equidistant, and the tree loses pruning power.
+  </p>
+
+  <h2>ANNOY (Approximate Nearest Neighbors Oh Yeah)</h2>
+  <p>
+    ANNOY is a data structure designed to find approximate nearest neighbors efficiently.  
+    In high-dimensional spaces, an exact search (like KD Trees) becomes inefficient — typically \( O(N) \), where \( N \) is the number of neighbors.
+    ANNOY reduces this to approximately \( O(\log N) \).
+  </p>
+
+  <h3>Algorithm</h3>
+  <ul>
+    <li>Pick two random points and split them at their midpoint along a plane perpendicular to the line joining them.</li>
+    <li>Based on this split, create a binary tree where each node represents one section of the space.</li>
+    <li>Repeat the process until the <em>K</em> nearest points lie within a single leaf node.</li>
+  </ul>
+
+  <h3>Issues</h3>
+  <ul>
+    <li>Some nearest neighbors may be missed if they lie outside the current search region.</li>
+    <li>It is not possible to find more than <em>K</em> neighbors using a single tree traversal.</li>
+  </ul>
+
+  <h3>Mitigation</h3>
+  <ul>
+    <li>While traversing, when the search is near enough, consider multiple splits instead of one.</li>
+    <li>Create a <strong>forest of random trees</strong> — searching across multiple trees improves accuracy.</li>
+  </ul>
+
+  <p>
+    This approach provides a trade-off between accuracy and speed, where the nearest neighbors found are approximate, not exact.
+  </p>
+
+<!-- ✅ Include this once before </body> if not already added -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+
+
+</script>
+
+
       </section>
 
       
