@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+ in <head> or before </body> 
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Weekly Updates (Pure HTML)</title>
+<style>
+    :root {
+  --bg: #f9fafb;        /* soft near-white background */
+  --panel: #e6edf3;     /* light pastel blue/grey panels */
+  --text: #1a1c1e;      /* dark but not harsh black text */
+  --muted: #6b7280;     /* muted grey for secondary text */
+  --accent: #3b82f6;    /* gentle blue accent */
+  --ring: rgba(59, 130, 246, 0.3); /* subtle highlight for focus rings */
+}
+
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .title { font-size: clamp(28px, 3vw, 40px); margin: 0 0 8px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+
+    .grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--panel); border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+    .sidebar { padding: 8px; }
+    .list { list-style: none; margin: 0; padding: 8px; max-height: 70vh; overflow: auto; }
+    .btn {
+      display: block; width: 100%; text-align: left; padding: 12px 14px; margin: 6px 0;
+      color: var(--text); background: transparent; border: 1px solid transparent;
+      border-radius: 12px; cursor: pointer; font: inherit;
+    }
+    .btn:hover { background: rgba(255,255,255,.04); }
+    .btn[aria-current="true"] { background: rgba(79,163,255,.08); border-color: var(--ring); }
+
+    .content { padding: 20px 24px; }
+    .content h2 { margin-top: 0; }
+    .muted { color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1 class="title">Weekly Updates</h1>
+    <p class="sub"><a href="index.html">← Back to split index</a> <span class="muted">|</span> <a href="../index.html">Open original single-file view</a></p>
+
+    <section class="panel content">
+      <h2>Week 7 — Dec 18</h2>
+<div>
+<h2>Experiment Notes: Class Imbalance vs Skill Metrics (SWAN-SF, Partition 1)</h2>
+<p>
+      Goal: isolate how common evaluation metrics behave when the dataset becomes <b>highly imbalanced</b>,
+      while the model’s per-class performance is held constant.
+      This mirrors the solar flare setting where <b>non-flare events dominate</b>.
+    </p>
+<h3>Binary Labeling Rule</h3>
+<p>
+<b>Positive (1):</b> M- and X-class flares<br/>
+<b>Negative (0):</b> all other cases
+    </p>
+<hr/>
+<h2>Experimental Setup</h2>
+<ul>
+
+<li>
+        Then keep the flare class fixed:
+        <b>n<sub>flare</sub> = 72</b>
+</li>
+<li>
+        Increase the non-flare class by multiplying it with imbalance factors:
+        <code>[1, 2, 5, 10, 20, 50, 60, 100, 1000, 5000, 10000]</code>
+</li>
+<li>
+        Analyze which metrics stay stable vs drift as the negative class grows.
+      </li>
+</ul>
+<hr/>
+<h2>Metrics Used (Definitions)</h2>
+<p>$$
+TSS = \frac{TP}{TP+FN} - \frac{FP}{FP+TN}
+= TPR - FPR
+$$</p>
+<p>$$
+HSS = \frac{2 \times (TP \times TN - FN \times FP)}
+{(P \times (FN + TN) + (TP + FP) \times N)}
+$$</p>
+<p>$$
+Recall = \frac{TP}{TP+FN} = TPR
+$$</p>
+<p>$$
+Precision = \frac{TP}{TP+FP}
+$$</p>
+<p>
+      Key idea: <b>TSS depends on rates</b> (TPR and FPR). If those rates stay fixed, TSS stays fixed —
+      even when you add huge numbers of non-flare samples. Precision can drop because <b>FP grows with more negatives</b>.
+    </p>
+<hr/>
+<h2>Theoretical Expectations (Two Scenarios)</h2>
+<h3>Case A — Model has skill</h3>
+<p>
+      Assume:
+      <b>Non-flare accuracy = 90%</b> → <b>FPR = 10%</b><br/>
+<b>Flare accuracy = 60%</b> → <b>TPR (Recall) = 60%</b>
+</p>
+<p>
+      Then:
+      <br/>
+<b>Recall</b> = 0.60
+      <br/>
+<b>TSS</b> = 0.60 − 0.10 = <b>0.50</b>
+</p>
+<p>
+      Expected trend as imbalance increases:
+      <ul>
+<li><b>TSS</b> stays ~constant (rate-based)</li>
+<li><b>Recall</b> stays ~constant (depends only on positives)</li>
+<li><b>Precision</b> decreases (more negatives → more FP for any nonzero FPR)</li>
+<li><b>F1</b> drops mainly because precision drops</li>
+</ul>
+</p>
+
+
+  <figure class="research-figure">
+<img alt="KNN Classification Example" src="TSS90.png"/>
+<!-- <img alt="KNN Classification Example" src="TSS90Gr.png"/> -->
+</figure>
+
+<h3>Case B — Model has no discriminative skill</h3>
+<p>
+      Assume:
+      <b>Non-flare accuracy = 75%</b> → <b>FPR ≈ 25%</b><br/>
+<b>Flare accuracy = 25%</b> → <b>TPR (Recall) ≈ 25%</b>
+</p>
+<p>
+      Then:
+      <br/>
+<b>Recall</b> ≈ 0.25
+      <br/>
+<b>TSS</b> ≈ 0.25 − 0.25 = <b>0.00</b>
+</p>
+<p>TPR ≈ FPR i.e TP = rP and TN = (1-r) N and FN = rN then FP = (1-r) p  </p><br/>
+<p>Resulting in ((TP * FP) - (FN * TN)) be 0  </p>
+  <figure class="research-figure">
+<!-- <img alt="KNN Classification Example" src="TSS90.png"/> -->
+<img alt="KNN Classification Example" src="TSS90Gr.png"/>
+<img alt="KNN Classification Example" src="TSS70.png"/>
+
+</figure>
+<p>
+      Interpretation: when <b>TSS ≈ 0</b>, the model is essentially behaving like random guessing in terms of separation,
+      and apparent performance can be dominated by class imbalance rather than real predictive skill.
+    </p>
+<hr/>
+<h2>Where HSS Fits</h2>
+<p>
+<b>HSS (Heidke Skill Score)</b> is not strictly invariant to class imbalance because it depends on multiple
+      confusion-matrix counts (not just rates). As the negative class dominates, HSS often <b>drifts downward</b>,
+      even if the classifier’s per-class rates are unchanged.
+    </p>
+<hr/>
+<h2>Conclusion (What This Experiment Demonstrates)</h2>
+<ul>
+<li>
+<b>TSS is not sensitive to class imbalance</b>: even with very large increases in non-flare samples,
+        TSS remains stable when TPR and FPR are stable.
+      </li>
+<li>
+<b>Recall is not sensitive to class imbalance</b> for the same reason (it is computed only from TP and FN).
+      </li>
+<li>
+<b>F1 drops mainly due to precision</b>, and precision is the metric most affected by increasing non-flare counts.
+      </li>
+<li>
+<b>HSS tends to decrease</b> as imbalance grows, since it depends on the full confusion matrix and “chance agreement.”
+      </li>
+<li>
+<b>When TSS is 0</b>, the model has no real separation ability; performance is largely explainable by imbalance.
+      </li>
+<li>
+        This supports why <b>TSS is preferred over F1 and accuracy</b> for solar flare prediction under extreme imbalance:
+        it reflects true discriminative skill rather than prevalence-driven effects.
+      </li>
+</ul>
+</div>
+    </section>
+  </main>
+</body>
+</html>

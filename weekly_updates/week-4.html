@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+ in <head> or before </body> 
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Weekly Updates (Pure HTML)</title>
+<style>
+    :root {
+  --bg: #f9fafb;        /* soft near-white background */
+  --panel: #e6edf3;     /* light pastel blue/grey panels */
+  --text: #1a1c1e;      /* dark but not harsh black text */
+  --muted: #6b7280;     /* muted grey for secondary text */
+  --accent: #3b82f6;    /* gentle blue accent */
+  --ring: rgba(59, 130, 246, 0.3); /* subtle highlight for focus rings */
+}
+
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .title { font-size: clamp(28px, 3vw, 40px); margin: 0 0 8px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+
+    .grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--panel); border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+    .sidebar { padding: 8px; }
+    .list { list-style: none; margin: 0; padding: 8px; max-height: 70vh; overflow: auto; }
+    .btn {
+      display: block; width: 100%; text-align: left; padding: 12px 14px; margin: 6px 0;
+      color: var(--text); background: transparent; border: 1px solid transparent;
+      border-radius: 12px; cursor: pointer; font: inherit;
+    }
+    .btn:hover { background: rgba(255,255,255,.04); }
+    .btn[aria-current="true"] { background: rgba(79,163,255,.08); border-color: var(--ring); }
+
+    .content { padding: 20px 24px; }
+    .content h2 { margin-top: 0; }
+    .muted { color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1 class="title">Weekly Updates</h1>
+    <p class="sub"><a href="index.html">← Back to split index</a> <span class="muted">|</span> <a href="../index.html">Open original single-file view</a></p>
+
+    <section class="panel content">
+      <h2>Week 4 — Nov 06</h2>
+<div>
+<h3>Comparison Summary</h3>
+<ul>
+<li>
+      The brute-force method initially appeared faster than the KD Tree and Annoy Tree. 
+      This happened because KD Tree and Annoy process <b>one query at a time</b>, 
+      while brute-force processes <b>all queries in a single vectorized batch</b>. 
+      Scikit-learn performs all pairwise distances between <code>Q</code> and <code>X</code> 
+      using optimized matrix operations.
+    </li>
+<li>When dimensionality (<code>D &lt; 16</code>), the KD Tree performs better than Annoy.</li>
+<li>As dimensionality increases, KD Tree performance degrades (curse of dimensionality), 
+        while Annoy becomes more efficient.</li>
+</ul>
+<pre>
+brute_batched_s = time_batched(lambda: brute_nn.kneighbors(Q, return_distance=True))
+
+# Single-query brute timing
+def brute_single(q):
+    brute_nn.kneighbors(q.reshape(1, -1), return_distance=True)
+</pre>
+<p>This experiment included both batched and single-query brute-force timings.</p>
+<figure class="research-figure">
+<img alt="compare1.png" src="compare1.png"/>
+</figure>
+<ul>
+<li>In high dimensions, Annoy uses random projections and does not rely on axis-aligned splits.</li>
+<li>When <code>D &gt; 4096</code>, even random projections become ineffective.</li>
+<li>The uniform dataset ranged between 0 and 1.</li>
+</ul>
+<p>The result for the uniform data is shown below:</p>
+<figure class="research-figure">
+<img alt="compare_uniform.png placeholder" src="compare_uniform.png"/>
+</figure>
+<h3>Speedup Analysis</h3>
+<p>From the data, the following observations were made:</p>
+<figure class="research-figure">
+<img alt="kd-tree_speedupvsdimension placeholder" src="kd-tree_speedupvsdimension.png"/>
+</figure>
+<p>
+    As dimension increases, KD Tree speedup approaches 1, meaning it performs similarly to brute-force.
+  </p>
+<figure class="research-figure">
+<img alt="annoy_speedupvsdimension placeholder" src="annoy_speedupvsdimension.png"/>
+</figure>
+<p>
+    For Annoy, speedup improves significantly as dimensionality <b>and</b> dataset size increase.
+  </p>
+<h3>Effect of search_k on Annoy</h3>
+<figure class="research-figure">
+<img alt="effect_of_search_k_on_annoy placeholder" src="effect_of_searchk_on_annpy.png"/>
+</figure>
+<h3>Music Dataset Results</h3>
+<ul>
+<li><code>N_index = 59500</code>, <code>M_queries = 10500</code>, <code>D = 784</code></li>
+</ul>
+<pre>
+Brute_single_total_s: 1009.1376
+KD_single_total_s: 629.7369 (Recall=1.0, Speedup=1.6)
+
+Annoy (search_k = 50):   3.7822s, Recall=0.9011, Speedup=266.81
+Annoy (search_k = 500):  4.4602s, Recall=0.9193, Speedup=226.25
+Annoy (search_k = 1000): 5.9033s, Recall=0.9627, Speedup=170.95
+Annoy (search_k = 5000): 14.1414s, Recall=0.9943, Speedup=71.36
+Annoy (search_k = 10000):21.5207s, Recall=0.9983, Speedup=46.89
+  </pre>
+<p>The recall for uniform distribution was low, but for music and random data it was high.</p>
+<h3>Reason for Low Recall in Uniform Data</h3>
+<p>
+    Uniform data → all distances are similar → nearest neighbors are hard to identify.
+  </p>
+<figure class="research-figure">
+<img alt="effect_of_search_k_on_annoy placeholder" src="recall_for_random.png"/>
+</figure>
+<p>Coefficient of Variation (CV) results:</p>
+<h4>Uniform Distribution</h4>
+<pre>
+mean CV = 0.085149
+std     = 0.006662
+min     = 0.065839
+max     = 0.104805
+  </pre>
+<h4>Music Data</h4>
+<pre>
+mean CV = 0.144568
+std     = 0.025152
+min     = 0.053549
+max     = 0.215893
+  </pre>
+<p>Higher CV indicates clustered structure → easier nearest neighbor retrieval → higher recall.</p>
+<h3>MNIST Results (1 Nearest Neighbor)</h3>
+<pre>
+    N_index: 59500 | M_queries: 10500 | D: 784
+KD_tree Recall = 1.0   | Speedup = 1.6
+Annoy Recall ~ 0.90–0.99 | Speedup = 266× to 46× (depending on search_k)
+  </pre>
+<h3>MNIST Results (15% Nearest Neighbors)</h3>
+<pre>
+KD_tree Recall = 0.9955 | Speedup = 1.45
+Annoy Recall improves with search_k (0.9193 → 0.9983)
+Speedup decreases as search_k increases
+  </pre>
+<figure class="research-figure">
+<img alt="effect_of_search_k_on_annoy placeholder" src="minst_data.png"/>
+</figure>
+<h3>Dataset Summary Table</h3>
+<table border="1" cellpadding="6" cellspacing="0">
+<tr>
+<th>Dataset</th>
+<th>N</th>
+<th>D</th>
+<th>Property</th>
+<th>Annoy R@1</th>
+<th>KD R@1</th>
+<th>Best Speedup</th>
+</tr>
+<tr>
+<td>Uniform</td>
+<td>50k</td>
+<td>4096</td>
+<td>Unstructured, high-D</td>
+<td>0.0002</td>
+<td>1.0</td>
+<td>&lt;1×</td>
+</tr>
+<tr>
+<td>Music</td>
+<td>60k</td>
+<td>784</td>
+<td>Structured embeddings</td>
+<td>0.99</td>
+<td>1.0</td>
+<td>266×</td>
+</tr>
+<tr>
+<td>MNIST</td>
+<td>59.5k</td>
+<td>784</td>
+<td>Mid-D, structured</td>
+<td>0.99</td>
+<td>1.0</td>
+<td>266×</td>
+</tr>
+</table>
+<p> Few Plots from the real life mnist data</p>
+<figure class="research-figure">
+<img alt="effect_of_search_k_on_annoy placeholder" src="SpeedupvsRecall.png"/>
+<img alt="effect_of_search_k_on_annoy placeholder" src="Annoyrecallvssearchk0.15.png"/>
+<img alt="effect_of_search_k_on_annoy placeholder" src="Annoyrecallvssearchk1.png"/>
+</figure>
+<h2>Swan Sf data Partition </h2>
+<p> This data was only for the partition 1</p>
+<p><strong>Classes:</strong> ['B1', 'B2', 'B3', 'B4', 'B5', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'X1', 'X2', 'X5', 'X6']</p>
+<p><strong>Index size:</strong> 4000   |   <strong>Query size:</strong> 1000</p>
+<figure class="research-figure">
+<img alt="swan placeholder" src="swan_ana.png"/>
+</figure>
+</div>
+    </section>
+  </main>
+</body>
+</html>

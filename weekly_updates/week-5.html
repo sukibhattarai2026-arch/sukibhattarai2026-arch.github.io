@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+ in <head> or before </body> 
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Weekly Updates (Pure HTML)</title>
+<style>
+    :root {
+  --bg: #f9fafb;        /* soft near-white background */
+  --panel: #e6edf3;     /* light pastel blue/grey panels */
+  --text: #1a1c1e;      /* dark but not harsh black text */
+  --muted: #6b7280;     /* muted grey for secondary text */
+  --accent: #3b82f6;    /* gentle blue accent */
+  --ring: rgba(59, 130, 246, 0.3); /* subtle highlight for focus rings */
+}
+
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .title { font-size: clamp(28px, 3vw, 40px); margin: 0 0 8px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+
+    .grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--panel); border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+    .sidebar { padding: 8px; }
+    .list { list-style: none; margin: 0; padding: 8px; max-height: 70vh; overflow: auto; }
+    .btn {
+      display: block; width: 100%; text-align: left; padding: 12px 14px; margin: 6px 0;
+      color: var(--text); background: transparent; border: 1px solid transparent;
+      border-radius: 12px; cursor: pointer; font: inherit;
+    }
+    .btn:hover { background: rgba(255,255,255,.04); }
+    .btn[aria-current="true"] { background: rgba(79,163,255,.08); border-color: var(--ring); }
+
+    .content { padding: 20px 24px; }
+    .content h2 { margin-top: 0; }
+    .muted { color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1 class="title">Weekly Updates</h1>
+    <p class="sub"><a href="index.html">← Back to split index</a> <span class="muted">|</span> <a href="../index.html">Open original single-file view</a></p>
+
+    <section class="panel content">
+      <h2>Week 5 — Nov 20</h2>
+<div>
+<h2>Full experimental logs</h2>
+<p>Below are all the experiment summaried </p>
+<h3>High-D uniform vs MNIST vs normal, D=784</h3>
+<pre>
+=== dist=uniform, n=59500, D=784, k=10, M_queries=10500 ===
+{'search_k': 1000, 'Annoy_build_s': 11.8934, 'Annoy_query_s': 9.5828, 'Brute_query_s': 37.726, 'Annoy_Recall@k': 0.0443}
+
+Loaded MNIST: N=70000, D=784
+Index size=59500  |  Query size=10500
+<!-- {'Annoy_search_k': 446250, 'Annoy_single_total_s': 553.3748, 'Annoy_Recall@1_vs_brute': 1.0, 'Annoy_speedup_vs_brute': 4.06} -->
+{'Annoy_search_k': 500, 'Annoy_single_total_s': 6.2594, 'Annoy_Recall@1_vs_brute': 0.919, 'Annoy_speedup_vs_brute': 358.75}
+{'Annoy_search_k': 1000, 'Annoy_single_total_s': 9.3291, 'Annoy_Recall@1_vs_brute': 0.9636, 'Annoy_speedup_vs_brute': 240.71}
+{'Annoy_search_k': 5000, 'Annoy_single_total_s': 21.9136, 'Annoy_Recall@1_vs_brute': 0.9943, 'Annoy_speedup_vs_brute': 102.47}
+{'Annoy_search_k': 10000, 'Annoy_single_total_s': 33.42, 'Annoy_Recall@1_vs_brute': 0.9979, 'Annoy_speedup_vs_brute': 67.19}
+
+=== dist=normal, n=59500, D=784, k=10, M_queries=10500 ===
+{'search_k': 1000, 'Annoy_build_s': 11.6909, 'Annoy_query_s': 9.5354, 'Brute_query_s': 35.9783, 'Annoy_Recall@k': 0.042}
+
+Summary table:
+   search_k      n    D     dist  Annoy_Recall@k  Silhouette Score
+1      1000  59500  784   normal        0.042048          0.000740
+0      1000  59500  784  uniform        0.044276          0.000839
+</pre>
+<h3>D = 2, no noise</h3>
+<pre>
+Summary table:
+   search_k      n  D     dist  Annoy_Recall@k  Silhouette Score
+1      1000  59500  2   normal         0.99999          0.378920
+0      1000  59500  2  uniform         1.00000          0.388917
+
+For d = 2
+Summary table:
+   search_k       n  D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  2   normal             1.0          0.452620
+3      1000    1000  2   normal             1.0          0.375696
+5      1000   10000  2   normal             1.0          0.377632
+7      1000  100000  2   normal             1.0          0.379989
+0      1000     100  2  uniform             1.0          0.405926
+2      1000    1000  2  uniform             1.0          0.392596
+4      1000   10000  2  uniform             1.0          0.394531
+6      1000  100000  2  uniform             1.0          0.390743
+</pre>
+<h3>D = 2, recall drop experiment</h3>
+<pre>
+But but the recall dropped. 
+add guassian noise double the n i.e the n is double now 
+Summary table:
+   search_k       n noise    D     dist        Annoy_Recall@k  Silhouette Score
+1      1000     100  100     2      normal        0.498857          0.459135
+3      1000    1000  1000    2      normal        0.506162          0.362144
+5      1000   10000  10000   2      normal        0.505086          0.376848
+7      1000  100000  100000  2      normal        0.510667          0.379200
+0      1000     100  100     2      uniform        0.500295          0.424435
+2      1000    1000  1000    2      uniform        0.501752          0.376921
+4      1000   10000  10000   2      uniform        0.501210          0.393918
+6      1000  100000  100000  2      uniform        0.503533          0.390820
+
+add uniform noise
+Summary table:
+   search_k       n  D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  2   normal        0.500867          0.472402
+3      1000    1000  2   normal        0.496714          0.368895
+5      1000   10000  2   normal        0.504238          0.377390
+7      1000  100000  2   normal        0.508743          0.380006
+0      1000     100  2  uniform        0.506038          0.401562
+2      1000    1000  2  uniform        0.522876          0.378060
+4      1000   10000  2  uniform        0.546524          0.383672
+6      1000  100000  2  uniform        0.546362          0.378086
+
+
+Summary table:
+   search_k       n  D     dist  Annoy_Recall@k
+0      1000     200  2  uniform        1.000000
+1      1000     200  2   normal        1.000000
+2      1000    2000  2  uniform        1.000000
+3      1000    2000  2   normal        1.000000
+4      1000   20000  2  uniform        1.000000
+5      1000   20000  2   normal        1.000000
+6      1000  200000  2  uniform        0.999995
+7      1000  200000  2   normal        0.999995
+</pre>
+<h3>D = 50, no noise vs Gaussian noise vs uniform noise</h3>
+<pre>
+no noise 
+
+Summary table:
+   search_k       n   D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  50   normal        0.999924          0.019863
+3      1000    1000  50   normal        0.959162          0.015318
+5      1000   10000  50   normal        0.683286          0.015812
+7      1000  100000  50   normal        0.389019          0.015873
+0      1000     100  50  uniform        0.999981          0.019602
+2      1000    1000  50  uniform        0.964076          0.015194
+4      1000   10000  50  uniform        0.630629          0.012390
+6      1000  100000  50  uniform        0.294362          0.011549
+
+guassian dataset addes as a noise 
+
+Summary table:
+   search_k       n   D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  50   normal        0.512114          0.031385
+3      1000    1000  50   normal        0.494190          0.018722
+5      1000   10000  50   normal        0.371410          0.016864
+7      1000  100000  50   normal        0.221057          0.016039
+0      1000     100  50  uniform        0.502800          0.040572
+2      1000    1000  50  uniform        0.486686          0.018522
+4      1000   10000  50  uniform        0.338010          0.012462
+6      1000  100000  50  uniform        0.165610          0.011277
+
+Uniform dataset addded as a noise 
+
+Summary table:
+   search_k       n   D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  50   normal        0.489476          0.031133
+3      1000    1000  50   normal        0.463819          0.017056
+5      1000   10000  50   normal        0.346124          0.016431
+7      1000  100000  50   normal        0.205229          0.016051
+0      1000     100  50  uniform        0.501276          0.040786
+2      1000    1000  50  uniform        0.489314          0.018419
+4      1000   10000  50  uniform        0.336943          0.012689
+6      1000  100000  50  uniform        0.165571          0.011317
+</pre>
+<h3>D = 10, various noise conditions</h3>
+<pre>
+For d = 10 
+Summary table:
+   search_k       n   D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  10   normal        0.999914          0.085198
+3      1000    1000  10   normal        0.999495          0.092316
+5      1000   10000  10   normal        0.998914          0.089436
+7      1000  100000  10   normal        0.997705          0.089768
+0      1000     100  10  uniform        0.999762          0.084516
+2      1000    1000  10  uniform        0.999600          0.072909
+4      1000   10000  10  uniform        0.998524          0.064694
+6      1000  100000  10  uniform        0.997038          0.064290
+
+Summary table:
+   search_k       n   D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  10   normal        0.500324          0.136302
+3      1000    1000  10   normal        0.504248          0.097576
+5      1000   10000  10   normal        0.504000          0.090306
+7      1000  100000  10   normal        0.506038          0.089486
+0      1000     100  10  uniform        0.499810          0.111501
+2      1000    1000  10  uniform        0.499924          0.075868
+4      1000   10000  10  uniform        0.500152          0.065800
+6      1000  100000  10  uniform        0.501629          0.062206
+
+Summary table:
+   search_k       n   D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  10   normal        0.494238          0.105430
+3      1000    1000  10   normal        0.486638          0.095695
+5      1000   10000  10   normal        0.483829          0.090462
+7      1000  100000  10   normal        0.484648          0.089461
+0      1000     100  10  uniform        0.501000          0.131192
+2      1000    1000  10  uniform        0.500848          0.072891
+4      1000   10000  10  uniform        0.499848          0.063982
+6      1000  100000  10  uniform        0.500048          0.063921
+</pre>
+<h3>Low-D with doubled N (noise = same count as data)</h3>
+<pre>
+Then its not just the high dimensional. Less rule out high dimensionality and try in low dim. 
+
+added same number of noise so the actual n is 2*n
+Summary table:
+   search_k       n  D     dist  Annoy_Recall@k  Silhouette Score
+1      1000     100  2   normal        0.500867          0.472402
+3      1000    1000  2   normal        0.496714          0.368895
+5      1000   10000  2   normal        0.504238          0.377390
+7      1000  100000  2   normal        0.508743          0.380006
+0      1000     100  2  uniform        0.506038          0.401562
+2      1000    1000  2  uniform        0.522876          0.378060
+4      1000   10000  2  uniform        0.546524          0.383672
+6      1000  100000  2  uniform        0.546362          0.378086
+
+Summary table:
+   search_k       n  D     dist  Annoy_Recall@k  Silhouette Score
+0      1000     200  2  uniform        1.000000          0.390257
+1      1000     200  2   normal        1.000000          0.410132
+2      1000    2000  2  uniform        1.000000          0.383632
+3      1000    2000  2   normal        1.000000          0.394740
+4      1000   20000  2  uniform        1.000000          0.388856
+5      1000   20000  2   normal        1.000000          0.373144
+6      1000  200000  2  uniform        0.999995          0.381419
+7      1000  200000  2   normal        0.999995          0.379151
+</pre>
+<h3>MNIST + different amounts of uniform noise</h3>
+<pre>
+Loaded MNIST: N=70000, D=784
+Before noise (59500, 784)
+After noise (59500, 784)
+Index size=59500  |  Query size=10500
+<!-- {'Annoy_search_k': 446250, 'Annoy_single_total_s': 530.421, 'Annoy_Recall@1_vs_brute': 1.0, 'Annoy_speedup_vs_brute': 4.33, 'Sillhouette Score': np.float32(0.08268389)} -->
+{'Annoy_search_k': 500, 'Annoy_single_total_s': 6.0841, 'Annoy_Recall@1_vs_brute': 0.919, 'Annoy_speedup_vs_brute': 377.72, 'Sillhouette Score': np.float32(0.08268389)}
+{'Annoy_search_k': 1000, 'Annoy_single_total_s': 9.2202, 'Annoy_Recall@1_vs_brute': 0.9636, 'Annoy_speedup_vs_brute': 249.25, 'Sillhouette Score': np.float32(0.08268389)}
+{'Annoy_search_k': 5000, 'Annoy_single_total_s': 21.0552, 'Annoy_Recall@1_vs_brute': 0.9943, 'Annoy_speedup_vs_brute': 109.15, 'Sillhouette Score': np.float32(0.08268389)}
+{'Annoy_search_k': 10000, 'Annoy_single_total_s': 31.8797, 'Annoy_Recall@1_vs_brute': 0.9979, 'Annoy_speedup_vs_brute': 72.09, 'Sillhouette Score': np.float32(0.08268389)}
+
+Loaded MNIST: N=70000, D=784
+Before noise (59500, 784)
+After noise (69500, 784)
+Index size=69500  |  Query size=10500
+added 10000 uniform noise
+<!-- {'Annoy_search_k': 521250, 'Annoy_single_total_s': 593.3378, 'Annoy_Recall@1_vs_brute': 1.0, 'Sillhouette Score': np.float64(0.054878131342801985)} -->
+{'Annoy_search_k': 500, 'Annoy_single_total_s': 6.3382, 'Annoy_Recall@1_vs_brute': 0.9146, 'Sillhouette Score': np.float64(0.054878131342801985)}
+{'Annoy_search_k': 1000, 'Annoy_single_total_s': 8.9979, 'Annoy_Recall@1_vs_brute': 0.9582, 'Sillhouette Score': np.float64(0.054878131342801985)}
+{'Annoy_search_k': 5000, 'Annoy_single_total_s': 21.031, 'Annoy_Recall@1_vs_brute': 0.9945, 'Sillhouette Score': np.float64(0.054878131342801985)}
+{'Annoy_search_k': 10000, 'Annoy_single_total_s': 31.9907, 'Annoy_Recall@1_vs_brute': 0.9975, 'Sillhouette Score': np.float64(0.054878131342801985)}
+
+Loaded MNIST: N=70000, D=784
+Before noise (59500, 784)
+After noise (89500, 784)
+Index size=89500  |  Query size=10500
+<!-- {'Annoy_search_k': 671250, 'Annoy_single_total_s': 754.4201, 'Annoy_Recall@1_vs_brute': 1.0, 'Sillhouette Score': np.float64(0.6194990601770511)} -->
+{'Annoy_search_k': 500, 'Annoy_single_total_s': 6.5379, 'Annoy_Recall@1_vs_brute': 0.907, 'Sillhouette Score': np.float64(0.6194990601770511)}
+{'Annoy_search_k': 1000, 'Annoy_single_total_s': 9.2472, 'Annoy_Recall@1_vs_brute': 0.9559, 'Sillhouette Score': np.float64(0.6194990601770511)}
+{'Annoy_search_k': 5000, 'Annoy_single_total_s': 22.0158, 'Annoy_Recall@1_vs_brute': 0.993, 'Sillhouette Score': np.float64(0.6194990601770511)}
+{'Annoy_search_k': 10000, 'Annoy_single_total_s': 33.4052, 'Annoy_Recall@1_vs_brute': 0.9971, 'Sillhouette Score': np.float64(0.6194990601770511)}
+
+Loaded MNIST: N=70000, D=784
+Before noise (59500, 784)
+After noise (109500, 784)
+Index size=109500  |  Query size=10500
+<!-- {'Annoy_search_k': 821250, 'Annoy_single_total_s': 934.606, 'Annoy_Recall@1_vs_brute': 1.0, 'Sillhouette Score': np.float64(0.5065134070384304)} -->
+{'Annoy_search_k': 500, 'Annoy_single_total_s': 6.7098, 'Annoy_Recall@1_vs_brute': 0.8997, 'Sillhouette Score': np.float64(0.5065134070384304)}
+{'Annoy_search_k': 1000, 'Annoy_single_total_s': 9.3619, 'Annoy_Recall@1_vs_brute': 0.952, 'Sillhouette Score': np.float64(0.5065134070384304)}
+{'Annoy_search_k': 5000, 'Annoy_single_total_s': 21.819, 'Annoy_Recall@1_vs_brute': 0.9904, 'Sillhouette Score': np.float64(0.5065134070384304)}
+{'Annoy_search_k': 10000, 'Annoy_single_total_s': 32.8214, 'Annoy_Recall@1_vs_brute': 0.9958, 'Sillhouette Score': np.float64(0.5065134070384304)}
+</pre>
+<hr/>
+<h2>Overall conclusion</h2>
+<ol>
+<li>
+<b>Dimension &amp; data structure matter:</b><br/>
+    In high dimensions with unstructured data (uniform / isotropic Gaussian), distances concentrate,
+    silhouette scores are near zero, and Annoy’s recall at fixed <code>search_k</code> is very low.
+    On structured data like MNIST embeddings, recall is very high for the same N and D because the
+    data has real cluster/manifold structure.
+  </li>
+<li>
+<b>Noise destroys nearest-neighbor structure:</b><br/>
+    When  Gaussian or uniform noise were added directly to synthetic datasets, recall collapses from
+    ≈1.0 to ≈0.5 or lower: the nearest-neighbor margin shrinks, and the data behaves more like a
+    random high-D cloud.
+  </li>
+</ol>\
+
+  <figure class="research-figure">
+<img alt="KNN Classification Example" src="PLOT_MNIST.png"/>
+<img alt="KNN Classification Example" src="PCA_Uniform.png"/>
+</figure>
+</div>
+    </section>
+  </main>
+</body>
+</html>

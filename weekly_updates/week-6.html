@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+ in <head> or before </body> 
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Weekly Updates (Pure HTML)</title>
+<style>
+    :root {
+  --bg: #f9fafb;        /* soft near-white background */
+  --panel: #e6edf3;     /* light pastel blue/grey panels */
+  --text: #1a1c1e;      /* dark but not harsh black text */
+  --muted: #6b7280;     /* muted grey for secondary text */
+  --accent: #3b82f6;    /* gentle blue accent */
+  --ring: rgba(59, 130, 246, 0.3); /* subtle highlight for focus rings */
+}
+
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .title { font-size: clamp(28px, 3vw, 40px); margin: 0 0 8px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+
+    .grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--panel); border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+    .sidebar { padding: 8px; }
+    .list { list-style: none; margin: 0; padding: 8px; max-height: 70vh; overflow: auto; }
+    .btn {
+      display: block; width: 100%; text-align: left; padding: 12px 14px; margin: 6px 0;
+      color: var(--text); background: transparent; border: 1px solid transparent;
+      border-radius: 12px; cursor: pointer; font: inherit;
+    }
+    .btn:hover { background: rgba(255,255,255,.04); }
+    .btn[aria-current="true"] { background: rgba(79,163,255,.08); border-color: var(--ring); }
+
+    .content { padding: 20px 24px; }
+    .content h2 { margin-top: 0; }
+    .muted { color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1 class="title">Weekly Updates</h1>
+    <p class="sub"><a href="index.html">← Back to split index</a> <span class="muted">|</span> <a href="../index.html">Open original single-file view</a></p>
+
+    <section class="panel content">
+      <h2>Week 6 — Dec 4</h2>
+<div>
+<h2>Concepts Overview</h2>
+<h3>TSS — True Skill Statistic</h3>
+<p>
+      Measures: <b>“How well can the model separate positives from negatives?”</b><br/>
+      Range: <code>-1</code> to <code>+1</code><br/>
+<ul>
+<li><b>-1</b> → Worse than random guessing</li>
+<li><b>0</b> → Equivalent to random guessing</li>
+<li><b>+1</b> → Perfect skill</li>
+</ul>
+      TSS is <b>not sensitive to class imbalance</b>, making it better than accuracy for skewed datasets.
+    </p>
+<h3>HSS — Heidke Skill Score</h3>
+<p>
+      Measures: <b>“How much better is this model than random guessing?”</b><br/>
+      Compares your model's accuracy against what a random classifier would achieve.
+    </p>
+<p>$$
+TSS = \frac{TP}{TP + FN} - \frac{FP}{FP + TN}
+$$</p>
+<p>(Forecast is better than random one)</p>
+<p>$$
+HSS = \frac{2 \times (TP \times TN - FN \times FP)}
+{(P \times (FN + TN) + (TP + FP) \times N)}
+$$</p>
+<hr/>
+<h2>Dynamic Time Warping (DTW)</h2>
+<p>
+      DTW is a distance-based algorithm used for <b>time-series similarity</b>.  
+      It allows sequences to be “stretched” or “compressed” so that similar patterns align even if they occur at different speeds.
+    </p>
+<h3>DTW Algorithm (Pseudocode)</h3>
+<pre>
+Given two sequences X = (x1, x2, ..., xn)
+                    Y = (y1, y2, ..., ym)
+
+Create an n × m cost matrix `dp`
+Initialize dp with ∞
+dp[0][0] = 0
+
+For i from 1 to n:
+    For j from 1 to m:
+        cost = |xi − yj|
+        dp[i][j] = cost + min(
+                          dp[i-1][j],      # insertion
+                          dp[i][j-1],      # deletion
+                          dp[i-1][j-1]     # match
+                       )
+
+DTW distance = dp[n][m]
+    </pre>
+<p>
+      This algorithm computes the <b>minimum cumulative distance</b> needed to warp two sequences into alignment.
+    </p>
+<hr/>
+<h2>Distance Metric Interpretation</h2>
+<p>
+      DTW gives a <b>distance score</b>:  
+      <ul>
+<li><b>Lower distance</b> → more similar time-series</li>
+<li><b>Higher distance</b> → more different</li>
+</ul>
+</p>
+<hr/>
+<pre>
+    x = np.array([0,0,1,1,0,-1,0,0,1,0,0,0])
+    y = np.array([0,1,1,0,0,0,0,0,0,-1,0,0,0,0,0,1])
+   </pre>
+<figure class="research-figure">
+<img alt="Diagram 1" src="DTW_1.png"/>
+<img alt="Diagram 2" src="DTW_2.png"/>
+</figure>
+</div>
+    </section>
+  </main>
+</body>
+</html>
