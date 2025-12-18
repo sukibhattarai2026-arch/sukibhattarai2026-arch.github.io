@@ -192,7 +192,86 @@ $$</p>
         it reflects true discriminative skill rather than prevalence-driven effects.
       </li>
 </ul>
+
+
 </div>
+
+<div>
+
+    <h2>KNN: Euclidean Distance vs Dynamic Time Warping (DTW)</h2>
+    <p>
+      Here we compare a standard <b>KNN classifier</b> using <b>Euclidean distance</b> against KNN using
+      <b>DTW distance</b> on multivariate time-series from active regions.
+      The key difference is whether the comparison assumes events evolve on the <i>same clock time</i> or allows
+      <i>temporal alignment</i>.
+    </p>
+
+    <h3>Euclidean Distance (Baseline)</h3>
+    <ul>
+      <li><b>Compares time series point-by-point</b> at the same timestamps</li>
+      <li><b>Sensitive to temporal shifts</b> in flare evolution (same pattern but occurring earlier/later looks different)</li>
+      <li>Nearest neighbors are selected based on <b>strict timing similarity</b></li>
+    </ul>
+
+    <h3>DTW Distance (Time-Warped Similarity)</h3>
+    <ul>
+      <li><b>Allows temporal alignment (warping)</b> between sequences</li>
+      <li>Nearest neighbors are selected based on <b>similar evolution</b>, not strict timestamp matching</li>
+      <li>Reduces errors caused by <b>temporal misalignment</b> in the flare development profile</li>
+    </ul>
+
+    <hr>
+
+    <h2>Results & Interpretation</h2>
+
+    <figure class="research-figure">
+      <!-- Replace with your actual result image(s) -->
+      <img src="DTWvsEU.png" alt="KNN Euclidean vs DTW output comparison" />
+    </figure>
+
+    <p>
+      The improvement in <b>F1 score</b> under DTW suggests that DTW is reducing <b>both false positives and false negatives</b>.
+      This reflects DTW’s ability to prevent misclassification that arises purely from <b>temporal misalignment</b> in flare evolution.
+    </p>
+
+    <p>
+      The most pronounced gain is observed for the <b>M-class</b>:
+      the score increases from approximately <b>0.52</b> under Euclidean distance to approximately <b>0.92</b> under DTW.
+      This supports the idea that <b>M-class events exhibit more temporally variable evolution patterns</b>, and therefore benefit strongly
+      from DTW’s warping alignment.
+    </p>
+
+    <p>
+      In contrast, <b>X-class</b> shows a more similar skill score under both Euclidean and DTW distances.
+      This indicates that X-class events may already be well separated in the Euclidean feature space, so allowing warping provides
+      comparatively less additional benefit.
+    </p>
+
+
+    <figure class="research-figure side-by-side">
+  <img src="DTW_CM.png" alt="KNN with DTW results" />
+  <img src="Euclidean_cm.png" alt="KNN with Euclidean results" />
+</figure>
+
+<style>
+  .side-by-side {
+    display: flex;
+    gap: 20px;              /* space between images */
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;        /* stacks on small screens */
+  }
+
+  .side-by-side img {
+    width: 45%;             /* two images fit in one row */
+    max-width: 500px;
+    height: auto;
+    border-radius: 6px;
+  }
+</style>
+
+
+  </div>
     </section>
   </main>
 </body>
