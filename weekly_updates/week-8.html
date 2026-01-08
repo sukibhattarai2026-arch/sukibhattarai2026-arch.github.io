@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>KNN vs wKNN (Euclidean & DTW) — Summary</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.5; margin: 24px; max-width: 980px; }
+    h1, h2, h3 { margin: 0.6em 0 0.3em; }
+    .note { background: #f5f5f5; padding: 12px 14px; border-left: 4px solid #999; margin: 14px 0; }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #fbfbfb;
+      border: 1px solid #e3e3e3;
+      border-radius: 10px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      white-space: pre;
+    }
+    .figure {
+      border: 2px dashed #888;
+      border-radius: 10px;
+      padding: 18px;
+      margin: 14px 0;
+      background: #fafafa;
+    }
+    .figure strong { display: block; margin-bottom: 6px; }
+    .caption { font-size: 0.95em; color: #444; margin-top: 8px; }
+    ul { margin-top: 0.3em; }
+  </style>
+</head>
+<body>
+
+  <h2>HSS1 vs HSS2 (Skill Score Definitions)</h2>
+
+  <h3>HSS1</h3>
+  <p>
+    <strong>HSS1</strong> is sometimes written in the form:
+  </p>
+
+  <div class="mono">HSS1 = [2(TP + TN) − N] / N</div>
+
+  <p>
+    where <strong>N</strong> is the total number of samples (i.e., the total number of forecasts).
+    Conceptually, HSS1 measures how much better the classifier performs than random guessing under the
+    simplifying assumption that the two outcomes (flare vs. non-flare) are equally likely.
+  </p>
+
+  <p>
+    For solar flare prediction, this assumption is typically unrealistic because the dataset is
+    strongly <strong>class imbalanced</strong> (non-flare cases are much more frequent than flare cases).
+    As a result, HSS1 can be misleading in this setting and is therefore not commonly used for evaluating
+    flare prediction performance.
+  </p>
+
+  <h3>HSS2</h3>
+  <p>
+    <strong>HSS2</strong> is the classical Heidke Skill Score formulation used throughout this work.
+    It measures forecast skill relative to chance while accounting for the distribution of outcomes in
+    the contingency table. In other words, it quantifies how much better the model performs than a random
+    prediction baseline in a way that is more appropriate for imbalanced datasets such as solar flare
+    classification.
+  </p>
+
+  <div class="note">
+    <strong>Summary:</strong> HSS1 relies on an equal-likelihood assumption that does not match the
+    class distribution in solar flare data, while HSS2 provides a more reliable skill-based evaluation
+    under class imbalance and is the score reported in our experiments.
+  </div>
+
+  <h1>Results Summary: KNN vs wKNN (Euclidean & DTW)</h1>
+
+  <h2>Experimental Setup</h2>
+  <p>
+    The experiments were conducted on a randomly selected subset of the <strong>SWAN-SF</strong> dataset.
+    The sampled data preserves the original <strong>class imbalance</strong>, containing a dominant non-flare
+    class group and relatively fewer moderate and extreme flare events. This imbalance is representative of
+    real-world flare occurrence and is important when interpreting accuracy versus skill-based metrics.
+  </p>
+
+  <div class="mono">Class distribution (random sample):
+    <pre>
+FLARE_TYPE
+B    579
+F    414
+M     91
+X     24
+
+Class mapping:
+B → 0, F → 1, M → 2, X → 3
+
+Evaluation settings:
+k = 3, folds = 5, dtw_window = 10, f1_avg = macro
+    </pre>
+</div>
+
+  <h2>1) Comparing KNN and wKNN</h2>
+  <p>
+    Because the dataset is class-imbalanced, nearest-neighbor decisions are often dominated by the majority
+    (non-flare) classes. For flare classes (especially <strong>M</strong> and <strong>X</strong>), 
+    distance-weighted kNN (wKNN) can help by giving more influence to the closest flare-like neighbors.
+    In principle, this should improve skill-based detection performance (e.g., TSS) for rarer flare classes.
+  </p>
+
+  <div class="figure">
+    <img src="wnwk3.png" alt="KNN with DTW results" />
+    <!-- <div class="caption">Insert screenshot/table for unweighted KNN results here.</div> -->
+
+  </div>
+
+  
+
+  <h3>Conclusion (KNN vs wKNN)</h3>
+  <p>
+    Compared to unweighted KNN, wKNN showed a slight improvement in <strong>accuracy</strong>,
+    <strong>balanced accuracy</strong>, and <strong>F1</strong>. Importantly, the <strong>overall TSS</strong>
+    increased from approximately <strong>0.86</strong> to <strong>0.89</strong>. This improvement is primarily
+    driven by better class-wise performance for the <strong>M</strong> and <strong>X</strong> flare classes.
+  </p>
+
+  <hr />
+
+  <h2>2) Results for k = 1</h2>
+
+  <div class="figure">
+    <img src="nwk1.png" alt="KNN with DTW results" />
+    
+  </div>
+
+  <div class="figure">
+     <img src="bargraph.png" alt="KNN with DTW results" width="800"/>
+  </div>
+
+  <h3>Conclusion (k = 3 vs k = 1)</h3>
+  <p>
+    The experiment shows that performance is consistently better for <strong>k = 1</strong> than for
+    <strong>k = 3</strong> across all reported metrics. Increasing <em>k</em> adds additional neighbors
+    that may not be truly similar to the target sample, which introduces noise. This effect is amplified
+    under class imbalance, where majority-class neighbors are more likely to appear in the neighborhood and
+    can dilute the signal of rarer flare classes.
+
+    The reduced HSS for DTW-based weighted kNN at 𝑘=3 arises from an increase in M-class samples misclassified as the dominant B-class. Although the 
+    total number of M-class false negatives remains unchanged, HSS penalizes misclassification into majority classes more strongly, 
+    resulting in a lower class-wise HSS despite similar overall performance
+
+  </p>
+
+  <div class="figure">
+     <img src="cmwnwk3.png" alt="KNN with DTW results" width="800"/>
+  </div>
+
+  <hr />
+
+  <h2>3) DTW: Why KNN and wKNN can look similar</h2>
+  <p>
+    For DTW-based kNN, the weighted and unweighted versions often produced very similar results. A practical
+    interpretation is that DTW already yields a highly discriminative nearest-neighbor structure because it
+    aligns sequences. As a result, applying additional distance weighting is not always necessary when DTW is used as the distance metric.
+  </p>
+
+  <div class="note">
+    <strong>Key takeaway:</strong>
+    When using DTW, uniform kNN may be sufficient because DTW tends to create sharp, reliable neighborhoods.
+    Weighting can still be tested, but it is not guaranteed to improve accuracy and may only provide marginal
+    changes in skill scores depending on the class boundary structure.
+  </div>
+
+</body>
+</html>
