@@ -170,6 +170,117 @@ k = 3, folds = 5, dtw_window = 10, f1_avg = macro
     Weighting can still be tested, but it is not guaranteed to improve accuracy and may only provide marginal
     changes in skill scores depending on the class boundary structure.
   </div>
+<hr />
+  <section>
+  <h2>Euclidean Experiments on Partition1 (20 Cores, Full Dataset)</h2>
+
+  <p>
+    All experiments in this section were executed on the cluster using <strong>20 CPU cores</strong>,
+    using the complete <code>partition1</code> dataset (i.e., not a small subsample).
+  </p>
+
+  <h3>Class Distribution (Partition1)</h3>
+  <pre>
+FLARE_TYPE
+F    60130
+C     6416
+B     5692
+M     1089
+X      165
+  </pre>
+
+  <figure>
+    <div style="border: 2px dashed #999; padding: 18px; text-align: center;">
+      <!-- <strong>[PHOTO PLACEHOLDER]</strong><br /> -->
+        <img src="whole_comp.png" alt="KNN with DTW results" width="800"/>
+      Comparison plot: Accuracy, Balanced Accuracy, F1, TSS (sample vs full partition1)
+    </div>
+    <figcaption>Comparison of overall metrics for the sample experiment versus the full Partition1 run.</figcaption>
+  </figure>
+
+  <h3>Observations (Sample vs Full Partition1)</h3>
+  <ul>
+    <li>
+      Metrics such as <strong>Accuracy</strong> and <strong>Balanced Accuracy</strong> remain almost unchanged
+      when moving from a smaller sample to the full dataset.
+    </li>
+    <li>
+      Metrics such as <strong>F1</strong>, <strong>TSS</strong>, and <strong>HSS</strong> decrease slightly in the full dataset run.
+      These metrics are more sensitive to <strong>false positives (FP)</strong> and <strong>false negatives (FN)</strong>.
+      As the sample size increases under class imbalance, the absolute number of FP/FN errors typically increases as well,
+      which can reduce these skill-based scores.
+    </li>
+  </ul>
+
+  <figure>
+    <div style="border: 2px dashed #999; padding: 18px; text-align: center;">
+      <!-- <strong>[PHOTO PLACEHOLDER]</strong><br /> -->
+        <img src="whole_bar.png" alt="KNN with DTW results" width="800"/>
+      Per-class bar plots (e.g., TSS/HSS or class-wise metric comparison)
+    </div>
+    <figcaption>Per-class bar graph highlighting how performance changes across flare classes.</figcaption>
+  </figure>
+
+  <p>
+    The same overall pattern observed in the smaller sample repeats in the class-wise bar plots for the full dataset.
+    Most class-level metrics remain comparable; however, there is a significant decline for the <strong>M</strong> class,
+    where the score drops from approximately <strong>0.89</strong> (sample) to <strong>0.31</strong> (full dataset).
+  </p>
+
+  <figure>
+    <div style="border: 2px dashed #999; padding: 18px; text-align: center;">
+      <!-- <strong>[PHOTO PLACEHOLDER]</strong><br /> -->
+
+       <img src="whole_conf.png" alt="KNN with DTW results" width="800"/>
+      Confusion matrix (Euclidean, k=3) for full Partition1
+    </div>
+    <figcaption>Confusion matrix used to explain the low HSS score for the M class.</figcaption>
+  </figure>
+
+  <h3>Why is the M Class HSS the Worst?</h3>
+  <p>
+    The <strong>M</strong> class shows the lowest HSS because a large number of <strong>non-M</strong> samples
+    are incorrectly classified as <strong>M</strong> (roughly <strong>4000 false positives</strong>).
+    Under strong class imbalance, HSS is highly sensitive to both false positives and false negatives,
+    and it penalizes these misclassifications more strongly than accuracy-based metrics.
+  </p>
+
+  <p>
+    This is a key reason why HSS is valuable: even if the <strong>true positives (TP)</strong> for M are high
+    (which implies a reasonably strong recall), the large false-positive burden reduces the skill relative to chance,
+    resulting in a low HSS. The same trend is observed for <strong>k = 1</strong> as well:
+    overall performance remains good, but HSS remains sensitive to the M-class confusion.
+  </p>
+
+  <h2>Why DTW Was Not Used for the Full Partition1 Run</h2>
+  <p>
+    Dynamic Time Warping (DTW) is computationally expensive. Running Euclidean kNN across the full Partition1 dataset
+    completed in approximately <strong>2 minutes</strong> using parallel execution on <strong>20 cores</strong>.
+    In contrast, a timing benchmark on a smaller DTW test case (200 pairwise distance computations) yielded:
+  </p>
+
+  <pre>
+DTW speedup (1 core -> 20 cores): x2.68
+DTW/Euclid ratio (single-core):  x507.0
+DTW/Euclid ratio (20 cores): x189.1
+  </pre>
+
+  <p>
+    Based on the observed DTW-to-Euclidean ratio on 20 cores (<strong>~189×</strong> slower), the estimated runtime for a DTW-based
+    run under the same setup would be approximately:
+  </p>
+
+  <ul>
+    <li><strong>~380 minutes</strong> (i.e., a minimum of <strong>~6 hours</strong>)</li>
+  </ul>
+
+  <p>
+    This makes DTW significantly more costly for this experiment. In addition, GPU acceleration is generally not beneficial
+    for kNN + DTW in this setup, and parallelization still leaves a substantial overhead. Therefore, for full-dataset evaluation,
+    <strong>Euclidean distance is the more practical choice</strong>.
+  </p>
+</section>
+
 
 </body>
 </html>
