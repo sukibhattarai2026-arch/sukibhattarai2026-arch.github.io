@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLMs for Solar Flare Forecasting & Time-Series Modeling</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.5; margin: 0; padding: 0; }
+    main { max-width: 900px; margin: 0 auto; padding: 28px 18px; }
+    h1 { font-size: 28px; margin: 0 0 10px; }
+    .subtitle { margin: 0 0 22px; color: #333; }
+    h2 { font-size: 20px; margin: 26px 0 8px; }
+    h3 { font-size: 16px; margin: 14px 0 6px; }
+    ul { margin: 8px 0 14px 20px; }
+    .paper { border-top: 1px solid #ddd; padding-top: 18px; margin-top: 18px; }
+    .meta { color: #333; margin: 6px 0 10px; }
+    .label { font-weight: bold; }
+    .small { font-size: 13px; color: #444; }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>LLMs for Solar Flare Forecasting & Time-Series Modeling</h1>
+    <p class="subtitle">
+      Papers reviewed: <b>JW-Flare</b>, <b>LLM4TS</b>, and <b>Time-LLM</b>.
+      Focus: how time-series data is represented and used inside LLM-based models.
+    </p>
+
+    <section class="paper">
+      <h2>1) JW-Flare: Accurate Solar Flare Forecasting Method Based on Multimodal Large Language Models</h2>
+
+      <h3>What is this paper about?</h3>
+      <ul>
+        <li>Proposes a multimodal LLM approach for solar flare forecasting using magnetogram images plus structured solar physics parameters.</li>
+        <li>Frames flare forecasting as a constrained output prediction (binary choice such as “flare” vs “no flare”).</li>
+      </ul>
+
+      <h3>At which journal is it being published?</h3>
+      <ul>
+        <li>arXiv preprint (not peer-reviewed at the time of posting) [1].</li>
+      </ul>
+
+      <h3>What is the input and what is the output?</h3>
+      <ul>
+        <li><span class="label">Input:</span> a short time window represented as a sequence of magnetograms (e.g., 3 hours worth of images) + associated physical parameters in text form [2].</li>
+        <li><span class="label">Output:</span> whether a flare occurs in the next 24 hours (binary classification under strict output constraints) [2].</li>
+      </ul>
+
+      <h3>What methodology has been used?</h3>
+      <ul>
+        <li>Uses an instruction-tuned multimodal LLM backbone (vision + language), then adapts it via supervised fine-tuning (SFT) with LoRA for efficiency [3].</li>
+        <li>Image time series is handled as a sequence of visual tokens: each magnetogram is patch-encoded by a vision transformer, then aligned and concatenated with text tokens (prompt + parameters) before being processed by the LLM [3].</li>
+        <li>Prompting strategy constrains the model to return only predefined options (e.g., “A/B”), reducing ambiguous generative outputs [2].</li>
+        <li>Addresses severe class imbalance via resampling strategies during dataset construction (flare vs non-flare) [2].</li>
+      </ul>
+
+      <p class="meta"><span class="label">Personal note (from my reading):</span> The approach is strong but dense to understand quickly; reproducibility may be limited if an official repo is not available.</p>
+    </section>
+
+
+    <section class="paper">
+      <h2>2) LLM4TS: Aligning Pre-Trained LLMs as Data-Efficient Time-Series Forecasters</h2>
+
+      <h3>What is this paper about?</h3>
+      <ul>
+        <li>Adapts a pre-trained LLM to do time-series forecasting in a data-efficient way, instead of training a forecasting model from scratch.</li>
+        <li>Designed for general forecasting benchmarks (e.g., traffic, weather, etc.).</li>
+      </ul>
+
+      <h3>At which journal is it being published?</h3>
+      <ul>
+        <li>Published in <i>ACM Transactions on Intelligent Systems and Technology (TIST)</i> [4].</li>
+      </ul>
+
+      <h3>What is the input and what is the output?</h3>
+      <ul>
+        <li><span class="label">Input:</span> multivariate time series (T × C), often transformed during preprocessing (e.g., per-channel handling and tokenization by patching).</li>
+        <li><span class="label">Output:</span> the forecast values over a chosen prediction horizon (next N steps), similar to standard time-series forecasters.</li>
+      </ul>
+
+      <h3>What methodology has been used?</h3>
+      <ul>
+        <li>Core idea: make time-series look like something an LLM can process by mapping segments of the series into token-like embeddings.</li>
+        <li>Two-stage approach: (1) an alignment stage to adapt the LLM to time-series structure, then (2) a forecasting fine-tuning stage for downstream prediction [5].</li>
+        <li>Common preprocessing pattern (high-level): normalization → (optional) channel-independence → patching adjacent timestamps into “tokens” → add temporal/positional information → feed into the pre-trained LLM.</li>
+      </ul>
+
+      <p class="meta"><span class="label">Why I looked at this:</span> It gives a clearer “how-to” for representing numeric time series as LLM-compatible tokens, which can be helpful when trying to use a solar dataset beyond images.</p>
+    </section>
+
+
+    <section class="paper">
+      <h2>3) Time-LLM: Time Series Forecasting by Reprogramming Large Language Models</h2>
+
+      <h3>What is this paper about?</h3>
+      <ul>
+        <li>Shows how to use an off-the-shelf LLM for forecasting by “reprogramming” time-series inputs into representations that better match language-model behavior.</li>
+      </ul>
+
+      <h3>At which journal is it being published?</h3>
+      <ul>
+        <li>Published at <i>ICLR 2024</i> [6].</li>
+      </ul>
+
+      <h3>What is the input and what is the output?</h3>
+      <ul>
+        <li><span class="label">Input:</span> time series split into patches; then transformed into text-prototype-like representations before entering a (mostly) frozen LLM backbone [6].</li>
+        <li><span class="label">Output:</span> forecast values over the prediction horizon after projecting the LLM’s transformed representations back to numeric space [6].</li>
+      </ul>
+
+      <h3>What methodology has been used?</h3>
+      <ul>
+        <li>Reprograms time-series patches into “text prototype” representations to better align with LLM token processing [6].</li>
+        <li>Uses a prompting mechanism (Prompt-as-Prefix) to steer reasoning over time-series concepts, then maps the LLM output to forecasts [6].</li>
+      </ul>
+    </section>
+
+
+    <section class="paper">
+      <h2>Overall takeaway: How time-series data is used in LLMs (patterns across the papers)</h2>
+      <ul>
+        <li><b>Tokenization by patching:</b> Convert adjacent timestamps (or image patches) into token-like units that an LLM can attend over.</li>
+        <li><b>Alignment layer/encoding:</b> Add temporal + positional information and map inputs into an embedding space compatible with the LLM.</li>
+        <li><b>Prompting + constraints:</b> Use prompts and restricted output formats to reduce ambiguity and make the task “LLM-friendly.”</li>
+        <li><b>Multimodal fusion (solar case):</b> Combine images (magnetograms) with structured physical parameters via a single multimodal sequence processed end-to-end.</li>
+      </ul>
+
+      <p class="small">
+        Reference keys: [1] JW-Flare preprint, [4] LLM4TS (ACM TIST), [6] Time-LLM (ICLR 2024).
+      </p>
+    </section>
+
+  </main>
+</body>
+</html>
