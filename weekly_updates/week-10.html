@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLM-Based Time Series Forecasting – Weekly Progress</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.5; margin: 0; padding: 0; }
+    main { max-width: 900px; margin: 0 auto; padding: 28px 18px; }
+    h1 { font-size: 28px; margin: 0 0 10px; }
+    .subtitle { margin: 0 0 22px; color: #333; }
+    h2 { font-size: 20px; margin: 26px 0 8px; }
+    h3 { font-size: 16px; margin: 14px 0 6px; }
+    ul { margin: 8px 0 14px 20px; }
+    table { border-collapse: collapse; margin: 10px 0 18px; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    .meta { color: #333; margin: 6px 0 10px; }
+    .small { font-size: 13px; color: #444; }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>LLM-Based Time Series Forecasting</h1>
+    <p class="subtitle">
+      Weekly Progress Update – Applying LLM-style modeling to solar time-series data.
+    </p>
+
+    <section>
+      <h2>1) Objective</h2>
+      <ul>
+        <li>Use time-series solar magnetic parameters as input to an LLM-style architecture.</li>
+        <li>Evaluate different multi-step forecasting strategies.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>2) Data Representation & Windowing</h2>
+
+      <h3>Input Configuration</h3>
+      <ul>
+        <li>Sequence length: <b>24 time steps</b></li>
+        <li>Sliding window shift: <b>1</b></li>
+        <li>Prediction horizon: <b>6 steps ahead</b></li>
+        <li>Features used: <b>R_VALUE</b>, <b>TOTUSJH</b></li>
+      </ul>
+
+      <h3>Windowing Strategy</h3>
+      <ul>
+        <li>Each sample consists of 24 past timestamps.</li>
+        <li>The window moves forward by one time step.</li>
+        <li>The model predicts the next 6 future values.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3) Architectures Implemented</h2>
+
+      <h3>A) Direct Multi-Step Forecasting</h3>
+      <ul>
+        <li>Model predicts all 6 future steps in a single forward pass.</li>
+        <li>No recursive feedback from predicted outputs.</li>
+      </ul>
+
+      <h3>B) Autoregressive Forecasting</h3>
+      <ul>
+        <li>Predict one step at a time.</li>
+        <li>Each predicted output is fed back as input for the next step.</li>
+      </ul>
+
+      <h3>C) Autoregressive + RevIN</h3>
+      <ul>
+        <li>Applies reversible instance normalization (RevIN).</li>
+        <li>Normalizes input before prediction and restores original scale afterward.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4) Limitations</h2>
+      <ul>
+        <li>Class imbalance was not addressed.</li>
+        <li>Only two physical features were used.</li>
+        <li>No feature expansion or multimodal inputs yet.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>5) Results – Direct Forecasting</h2>
+
+      <table>
+        <tr><th>Horizon</th><th>MSE</th></tr>
+        <tr><td>t+1</td><td>0.018405</td></tr>
+        <tr><td>t+2</td><td>0.025427</td></tr>
+        <tr><td>t+3</td><td>0.030181</td></tr>
+        <tr><td>t+4</td><td>0.033941</td></tr>
+        <tr><td>t+5</td><td>0.037062</td></tr>
+        <tr><td>t+6</td><td>0.039832</td></tr>
+      </table>
+
+      <p class="meta">
+        Observation: Error increases gradually with horizon, as expected.
+      </p>
+    </section>
+
+    <section>
+      <h2>6) Results – Autoregressive</h2>
+
+      <table>
+        <tr><th>Horizon</th><th>MSE</th></tr>
+        <tr><td>t+1</td><td>0.438854</td></tr>
+        <tr><td>t+2</td><td>0.438653</td></tr>
+        <tr><td>t+3</td><td>0.438481</td></tr>
+        <tr><td>t+4</td><td>0.438259</td></tr>
+        <tr><td>t+5</td><td>0.438222</td></tr>
+        <tr><td>t+6</td><td>0.438028</td></tr>
+      </table>
+
+      <p class="meta">
+        Observation: Significantly higher error compared to direct forecasting.
+      </p>
+    </section>
+
+    <section>
+      <h2>7) Results – Autoregressive + RevIN</h2>
+
+      <table>
+        <tr><th>Horizon</th><th>MSE (Original Scale)</th></tr>
+        <tr><td>t+1</td><td>1053.011260</td></tr>
+        <tr><td>t+2</td><td>1549.586855</td></tr>
+        <tr><td>t+3</td><td>2147.115166</td></tr>
+        <tr><td>t+4</td><td>2996.105864</td></tr>
+        <tr><td>t+5</td><td>3744.722965</td></tr>
+        <tr><td>t+6</td><td>4630.654627</td></tr>
+      </table>
+
+      <p class="meta">
+        Note: MSE values are reported after reversing normalization.  
+        Direct comparison requires careful interpretation due to scaling effects.
+      </p>
+    </section>
+
+    <section>
+      <h2>8) Key Takeaways</h2>
+      <ul>
+        <li>Direct forecasting significantly outperforms autoregressive in this setup.</li>
+        <li>Error accumulation likely affects autoregressive performance.</li>
+        <li>RevIN requires deeper investigation to interpret scaling behavior.</li>
+        <li>Next step: handle imbalance, add more features, test stronger architectures.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

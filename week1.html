@@ -1,0 +1,247 @@
+<!-- weeks/week1.html -->
+<h2>Week 1 — Sept 11</h2>
+
+<h2>Projects</h2>
+<ol>
+  <li>
+    Digging into our dataset for flare predictions (<strong>SWAN-SF</strong>) and supervised machine learning through 
+    <strong>Random Forest</strong> and <strong>kNN classifier</strong>.
+  </li>
+  <li>
+    Using <strong>CCMC score cards</strong> and <strong>ensembling techniques</strong> to build a more robust/accurate 
+    combination of space weather simulations.
+  </li>
+</ol>
+<hr />
+
+<h2>Topic Selection</h2>
+<p>Pick <strong>1 or 2</strong> from the following topics:</p>
+<ul>
+  <li>Thompson sampling</li>
+  <li>Multi-armed bandit algorithm</li>
+  <li>Monte Carlo search tree</li>
+  <li>Random Forest</li>
+  <li>kNN Classifier</li>
+  <li>SWAN-SF dataset</li>
+</ul>
+
+<section>
+  <h3>KNN</h3>
+  <ul>
+    <li>The K-nearest neighbors algorithm is mostly used for classification (also usable for regression).</li>
+    <li>Lazy learner: no explicit model is built until prediction time.</li>
+    <li>Instance-based & non-parametric: decisions are made by comparing the query to stored samples.</li>
+  </ul>
+
+  <h4>Probabilistic interpretation: \( P(Y=c \mid X=x) \)</h4>
+  <ul>
+    <li>Estimate the posterior probability of a new data point belonging to class \( c \).</li>
+    <li>Quantify uncertainty from neighbor votes.</li>
+  </ul>
+
+  <figure class="research-figure">
+    <img src="formal defination.png" alt="KNN formal definition illustration" />
+  </figure>
+
+  <h4>Algorithm Workflow</h4>
+  <ul>
+    <li>Choose hyperparameters (k, distance metric).</li>
+    <li>Compute distances \( d(x, x_i) \).</li>
+    <li>Select k nearest neighbors.</li>
+    <li>Classification: majority vote; Regression: average.</li>
+  </ul>
+
+  <h4>Hyperparameter K</h4>
+  <ul>
+    <li>Bias–Variance trade-off:
+      <ul>
+        <li>Small k → sensitive to noise (high variance).</li>
+        <li>Large k → over-smoothing (high bias).</li>
+      </ul>
+    </li>
+    <li>Pick via cross-validation; rule of thumb \( k \lesssim \sqrt{n} \). Prefer odd k for binary classes.</li>
+  </ul>
+
+  <h4>Distance Metric</h4>
+  <p>Accuracy depends strongly on the metric.</p>
+  <h5>Common choices</h5>
+  <ul>
+    <li><strong>Numerical:</strong> Euclidean, Manhattan</li>
+    <li><strong>Categorical:</strong> Hamming</li>
+    <li><strong>High-dimensional:</strong> Cosine, Jaccard</li>
+    <li><strong>Time series:</strong> DTW (Dynamic Time Warping)</li>
+  </ul>
+
+  <figure class="research-figure">
+    <img src="distance_metric.png" alt="Distance metrics overview" />
+  </figure>
+  <figure class="research-figure">
+    <img src="distance.png" alt="Distance examples" />
+  </figure>
+
+  <h4>Considerations</h4>
+  <h5>Curse of Dimensionality</h5>
+  <p>Distances become less discriminative in high-D. Use feature selection or dimensionality reduction.</p>
+  <h6>Feature Selection</h6>
+  <ul>
+    <li><strong>Filter:</strong> information gain, chi-square, correlation.</li>
+    <li><strong>Wrapper:</strong> forward/backward selection.</li>
+    <li><strong>Embedded:</strong> weighted KNN, etc.</li>
+  </ul>
+
+  <h6>Dimensionality Reduction</h6>
+  <ul>
+    <li>Remove redundant/irrelevant attributes to reduce overfitting.</li>
+  </ul>
+
+  <figure class="research-figure">
+    <img src="dimension_reduction.png" alt="Dimensionality reduction illustration" />
+  </figure>
+
+  <h5>Feature Scaling</h5>
+  <ul>
+    <li>Normalize/standardize features (StandardScaler or MinMaxScaler).</li>
+  </ul>
+
+  <figure class="research-figure">
+    <img src="minmax.png" alt="Min-Max scaling" />
+  </figure>
+
+  <h5>Complexity</h5>
+  <p>Brute-force KNN is \( O(n \cdot d) \). KD-tree/Ball-tree can help (KD for low-D, Ball for higher-D).</p>
+
+  <h5>Imbalanced Data</h5>
+  <p>KNN is dominated by majority class; apply resampling or class weighting.</p>
+
+  <h4>Decision Boundary</h4>
+  <ul>
+    <li>Implied by neighbor regions; visualize via Voronoi diagrams in 2D.</li>
+  </ul>
+
+  <h4>Weighted KNN</h4>
+  <p>Weight neighbors by inverse distance.</p>
+
+  <figure class="research-figure">
+    <img src="wKnn.png" alt="Weighted KNN" />
+  </figure>
+  <figure class="research-figure">
+    <img src="wkk2.png" alt="Weighted KNN example" />
+  </figure>
+
+  <h4>Adaptive Neighborhood (radius-based KNN)</h4>
+  <p>Use all points within radius \( r \) to account for density variations.</p>
+
+  <h4>Advantages</h4>
+  <ul><li>Simple, versatile, interpretable.</li></ul>
+
+  <h4>Disadvantages</h4>
+  <ul><li>Heavy in high-D; sensitive to noise and scaling.</li></ul>
+</section>
+
+<section>
+  <h3>Random Forest</h3>
+  <p>
+    Ensemble of decision trees where multiple trees vote for the outcome. Reduces variance versus a single tree.
+  </p>
+
+  <h4>Decision Tree Basics</h4>
+  <ul>
+    <li>Splitting criteria: <strong>Entropy</strong>, <strong>Gini</strong>.</li>
+    <li>Information Gain measures usefulness of a split.</li>
+  </ul>
+
+  <figure class="research-figure">
+    <img src="rf_3.png" alt="Decision tree schematic" />
+  </figure>
+
+  <h4>Bagging</h4>
+  <ul>
+    <li>Train many trees on bootstrap samples; aggregate predictions.</li>
+  </ul>
+
+  <figure class="research-figure">
+    <img src="bagging.png" alt="Bagging illustration" />
+  </figure>
+
+  <h4>Python Example</h4>
+  <pre>
+from sklearn.ensemble import BaggingClassifier 
+from sklearn.tree import DecisionTreeClassifier 
+
+bag_clf = BaggingClassifier(
+    DecisionTreeClassifier(), 
+    n_estimators=500, 
+    max_samples=100, 
+    bootstrap=True, 
+    n_jobs=-1
+) 
+bag_clf.fit(X_train, y_train) 
+y_pred = bag_clf.predict(X_test)
+  </pre>
+
+  <p>
+    <strong>n_estimators</strong>: trees; <strong>max_samples</strong>: samples per tree; 
+    <strong>bootstrap</strong>: sampling with replacement; <strong>n_jobs=-1</strong>: use all CPUs.
+  </p>
+
+  <h4>Feature Importance</h4>
+  <ul>
+    <li><strong>Mean Decrease Gini</strong> (classification)</li>
+    <li><strong>Permutation Importance</strong> (accuracy drop)</li>
+  </ul>
+
+  <figure class="research-figure">
+    <img src="gini.png" alt="Gini importance" />
+  </figure>
+
+  <h4>OOB Score</h4>
+  <ul>
+    <li>Use out-of-bag samples to estimate generalization without a separate validation set.</li>
+  </ul>
+
+  <h4>Key Hyperparameters</h4>
+  <ul>
+    <li>Number of trees (B)</li>
+    <li>Max features per split (mtry)</li>
+  </ul>
+
+  <h4>Computational Aspect</h4>
+  <p>Approx. \( O(B \cdot n \log n) \).</p>
+
+  <h4>Pros</h4>
+  <ul><li>Strong default performance; mitigates overfitting.</li></ul>
+
+  <h4>Cons</h4>
+  <ul><li>Heavier compute; less interpretable than a single tree.</li></ul>
+
+  <h3>Considerations during implementation</h3>
+  <h4>Class weight — Random Forest</h4>
+  <ul>
+    <li>Imbalanced classes: use <code>class_weight="balanced"</code>, <code>"balanced_subsample"</code>, or a dict.</li>
+    <li><strong>SMOTE</strong> (KNN-based) for synthetic minority samples.</li>
+  </ul>
+
+  <h4>Evaluation metrics</h4>
+  <ul>
+    <li>Precision, Recall, F1</li>
+    <li>ROC–AUC</li>
+    <li>HSS (Heidke Skill Score), TSS (True Skill Statistic)</li>
+  </ul>
+
+  <p><em>How much better we are at finding real events:</em></p>
+  <p>$$
+  TSS = \frac{TP}{TP + FN} - \frac{FP}{FP + TN}
+  $$</p>
+
+  <p><em>Forecast better than random:</em></p>
+  <p>$$
+  HSS = \frac{2 \times (TP \times TN - FN \times FP)}
+  {(P \times (FN + TN) + (TP + FP) \times N)}
+  $$</p>
+
+  <p>
+    <a href="https://colab.research.google.com/drive/1xA4syEVXdSapE-MNAPmKR25Wq9oXJ11Y#scrollTo=UBd5I9-RiEEd" target="_blank" rel="noopener noreferrer">
+      Collab
+    </a>
+  </p>
+</section>
