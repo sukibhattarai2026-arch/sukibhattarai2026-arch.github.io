@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NF vs FL Forecasting Report (LLM + LSTM Sanity Check)</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.55; margin: 0; padding: 0; }
+    main { max-width: 980px; margin: 0 auto; padding: 28px 18px; }
+    h1 { font-size: 28px; margin: 0 0 8px; }
+    .subtitle { margin: 0 0 18px; color: #333; }
+    h2 { font-size: 20px; margin: 24px 0 8px; }
+    h3 { font-size: 16px; margin: 14px 0 6px; }
+    ul { margin: 8px 0 14px 20px; }
+    table { border-collapse: collapse; margin: 10px 0 18px; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 7px 9px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    td.l { text-align: left; }
+    .meta { color: #333; margin: 6px 0 10px; }
+    .small { font-size: 13px; color: #444; }
+    .callout { background: #fafafa; border: 1px solid #e0e0e0; padding: 10px 12px; margin: 10px 0 14px; }
+    .imgph {
+      border: 2px dashed #bdbdbd;
+      background: #fcfcfc;
+      padding: 18px;
+      text-align: center;
+      color: #555;
+      margin: 10px 0 18px;
+    }
+    .imgph b { display:block; margin-bottom: 6px; }
+    code { background: #f6f6f6; padding: 1px 4px; border: 1px solid #eee; border-radius: 4px; }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>NF vs FL Time-Series Forecasting — Final Report</h1>
+    <p class="subtitle">
+      Comparing Non-Flare (NF) vs Flare (FL) forecasting behavior using an LLM-style Transformer model and an LSTM (no attention) sanity check.
+    </p>
+
+    <section>
+      <h2>1) Hyperparameters & Data Setup</h2>
+      <table>
+        <tr><th class="l">Parameter</th><th>Value</th></tr>
+        <tr><td class="l">features</td><td>("R_VALUE", "TOTUSJH")</td></tr>
+        <tr><td class="l">input_len</td><td>24</td></tr>
+        <tr><td class="l">horizon</td><td>6</td></tr>
+        <tr><td class="l">batch_size</td><td>16</td></tr>
+        <tr><td class="l">train_frac</td><td>0.7</td></tr>
+        <tr><td class="l">num_workers</td><td>8</td></tr>
+        <tr><td class="l">pin_memory</td><td>False</td></tr>
+      </table>
+
+      <div class="callout">
+        <b>Model used (primary):</b> LLM-style Transformer<br/>
+        <b>Sanity check:</b> LSTM with no attention
+      </div>
+    </section>
+
+    <section>
+  <h3>Forecasting Modes: Direct vs Autoregressive (Teacher Forcing / No Teacher Forcing)</h3>
+
+  <p class="meta">
+    Let the past window be \(x_{1:L}\) and the future horizon be \(y_{1:H}\) (e.g., \(H=6\)).
+  </p>
+
+  <ul>
+    <li>
+      <b>Direct multi-step (one-shot)</b>: the model predicts the entire horizon in a single forward pass.
+      <div class="small">
+        Train/infer: \(\hat{\mathbf{y}}_{1:H} = f(\mathbf{x}_{1:L})\).<br/>
+        No recursive feedback loop; errors do not accumulate across steps during inference.
+      </div>
+    </li>
+
+    <li>
+      <b>Autoregressive (no teacher forcing)</b>: the model predicts one step at a time and feeds its own previous
+      prediction back as input for the next step.
+      <div class="small">
+        Inference loop:
+        \(\hat{\mathbf{y}}_{1} = f(\mathbf{x}_{1:L})\),
+        then \(\hat{\mathbf{y}}_{t} = f(\mathbf{x}_{2:L}, \hat{\mathbf{y}}_{1:t-1})\) for \(t=2..H\).<br/>
+        This is closer to real deployment but can suffer from <i>error accumulation</i> (early mistakes propagate).
+      </div>
+    </li>
+
+    <li>
+      <b>Autoregressive (teacher forcing)</b>: during <i>training</i>, the model still predicts one step at a time, but
+      it is fed the <i>ground-truth</i> previous step instead of its own prediction.
+      <div class="small">
+        Training loop:
+        \(\hat{\mathbf{y}}_{1} = f(\mathbf{x}_{1:L})\),
+        then \(\hat{\mathbf{y}}_{t} = f(\mathbf{x}_{2:L}, \mathbf{y}_{1:t-1})\) for \(t=2..H\).<br/>
+        Teacher forcing stabilizes training and improves short-horizon accuracy, but creates
+        <i>exposure bias</i>: at inference time the model must condition on \(\hat{\mathbf{y}}\), not \(\mathbf{y}\).
+      </div>
+    </li>
+  </ul>
+
+  <div class="callout">
+    <b>Key difference:</b> Teacher forcing changes only what is fed back during <i>training</i> (ground truth vs model output).
+    At inference, teacher forcing is not available; the autoregressive model must use its own predictions.
+  </div>
+</section>
+
+    <section>
+      <h2>2) Forecasting Approaches (LLM/Transformer)</h2>
+      <ul>
+        <li><b>Direct multi-step:</b> predict all horizons (t+1 … t+6) in one pass.</li>
+        <li><b>Autoregressive (no teacher forcing):</b> predict one step; feed the predicted output back for the next step.</li>
+        <li><b>Autoregressive (teacher forcing):</b> during training, feed the ground-truth previous step back as input.</li>
+      </ul>
+
+      <p class="meta">
+        We observed that <b>AR with teacher forcing</b> performs best among the three strategies (overall), but
+        <b>FL MSE remains lower than NF</b>, which motivated deeper analysis.
+      </p>
+    </section>
+
+    <section>
+      <h2>3) Results (LLM/Transformer)</h2>
+
+      <h3>3.1 Balanced Test — Horizon-wise Curves (Placeholder)</h3>
+      <div class="imgph">
+        <figure class="research-figure">
+        <img alt="comapre_over.png" src="comapre_over.png"/>
+        </figure>
+      </div>
+
+      <h3>3.2 Balanced Test — Overall NF vs FL (Aggregated)</h3>
+     
+
+      <h3>3.3 NF vs FL Gap Plot (Placeholder)</h3>
+      <div class="imgph">
+        <figure class="research-figure">
+        <img alt="NFvsFL.png" src="NFvsFL.png"/>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h2>4) Why is FL MSE lower than NF?</h2>
+      <p class="meta">
+        Since FL MSE is consistently lower, we evaluated multiple hypotheses.
+      </p>
+
+      <h3>4.1 Hypothesis: One feature dominates the NF vs FL gap (Univariate tests)</h3>
+
+      <!-- <table>
+        <tr>
+          <th class="l">Feature (univariate, LLM)</th>
+          <th>NF MSE (mean±std)</th>
+          <th>FL MSE (mean±std)</th>
+        </tr>
+        <tr>
+          <td class="l"><b>TOTUSJH</b></td>
+          <td>0.001859 ± 0.001752</td>
+          <td>0.001942 ± 0.003459</td>
+        </tr>
+        <tr>
+          <td class="l"><b>R_VALUE</b></td>
+          <td>0.054185 ± 0.149261</td>
+          <td>0.001375 ± 0.008401</td>
+        </tr>
+      </table> -->
+
+      <div class="imgph">
+        <figure class="research-figure">
+        <img alt="univa.png" src="univa.png"/>
+        </figure>
+      </div>
+
+      <p class="meta">
+        Observation: <b>TOTUSJH</b> univariate NF vs FL is similar, but <b>R_VALUE</b> shows a large NF&gt;&gt;FL gap.
+        This suggests the gap is <b>feature-dependent</b>.
+      </p>
+
+      <h3>4.2 Hypothesis: Attention/LLM learns spikes better → lower FL MSE</h3>
+      <p class="meta">
+        To test whether attention is the main driver, we replaced the Transformer with an <b>LSTM (no attention)</b>
+        and repeated univariate balanced evaluation.
+      </p>
+
+      <!-- <table>
+        <tr>
+          <th class="l">Feature (univariate, LSTM no-attn)</th>
+          <th>NF MSE (mean±std)</th>
+          <th>FL MSE (mean±std)</th>
+        </tr>
+        <tr>
+          <td class="l"><b>R_VALUE</b></td>
+          <td>0.055767 ± 0.149131</td>
+          <td>0.001944 ± 0.008811</td>
+        </tr>
+        <tr>
+          <td class="l"><b>TOTUSJH</b></td>
+          <td>0.000723 ± 0.001974</td>
+          <td>0.002643 ± 0.004262</td>
+        </tr>
+      </table> -->
+
+      <div class="imgph">
+        <figure class="research-figure">
+        <img alt="LSTM.png" src="LSTM.png"/>
+        </figure>
+      </div>
+
+      <p class="meta">
+        Observation: The NF vs FL difference <b>still persists</b> with LSTM (no attention), so the gap is not explained by
+        “attention learns spikes” alone.
+      </p>
+    </section>
+
+    <section>
+      <h2>5) Underlying Data Distribution (Most Likely Explanation)</h2>
+      <p class="meta">
+        We inspected the NF and FL window statistics. NF exhibits substantially higher variability (especially relative to its mean),
+        making the forecasting problem inherently harder.
+      </p>
+
+      <!-- <table>
+        <tr>
+          <th>Class</th>
+          <th>n_windows</th>
+          <th class="l">Feature</th>
+          <th>X mean</th>
+          <th>X std</th>
+          <th>Y mean</th>
+          <th>Y std</th>
+        </tr>
+        <tr>
+          <td>NF</td>
+          <td>2,239,378</td>
+          <td class="l"><b>R_VALUE</b></td>
+          <td>1.516</td>
+          <td>1.596</td>
+          <td>1.545</td>
+          <td>1.854</td>
+        </tr>
+        <tr>
+          <td>NF</td>
+          <td>2,239,378</td>
+          <td class="l"><b>TOTUSJH</b></td>
+          <td>346.9</td>
+          <td>627.3</td>
+          <td>387.8</td>
+          <td>646.9</td>
+        </tr>
+        <tr>
+          <td>FL</td>
+          <td>38,874</td>
+          <td class="l"><b>R_VALUE</b></td>
+          <td>4.709</td>
+          <td>0.4714</td>
+          <td>4.727</td>
+          <td>0.4401</td>
+        </tr>
+        <tr>
+          <td>FL</td>
+          <td>38,874</td>
+          <td class="l"><b>TOTUSJH</b></td>
+          <td>2583</td>
+          <td>1379</td>
+          <td>2618</td>
+          <td>1373</td>
+        </tr>
+      </table> -->
+
+      <div class="imgph">
+        <figure class="research-figure">
+            <img alt="mean_var.png" src="mean_var.png"/>
+            </figure>
+      </div>
+
+      <div class="callout">
+        <b>Main takeaway:</b> NF is a more heterogeneous / noisy regime than FL (higher variability).  
+        This narrows the conditional distribution for FL, making it easier to forecast (lower MSE), independent of attention.
+      </div>
+    </section>
+
+<!-- ===================== APPEND THIS NEW SECTION ONLY ===================== -->
+<section>
+  <h2>6) Frequency-Domain Variant (DFT Features)</h2>
+
+  <div class="callout">
+    <b>Setup (this section):</b> We compute rFFT-based DFT features from the past window and use them as model inputs
+    (optionally concatenated with normalized raw inputs). The model predicts raw targets of shape <code>(B, H, F_raw)</code>,
+    which are then denormalized back to original units.
+    <div class="small" style="margin-top:6px;">
+      Example shapes used here: <code>B=16</code>, <code>L_in=24</code>, <code>H=6</code>, <code>F_raw=2</code>,
+      <code>N_bins(in)=L_in//2+1=13</code>, <code>N_bins(out)=H//2+1=4</code>.
+    </div>
+  </div>
+
+  <h3>6.1 rFFT / iRFFT Formulas</h3>
+  <p class="meta">
+    For a length-\(N\) sequence \(x[n]\), the Discrete Fourier Transform (DFT) is:
+  </p>
+  <div class="callout">
+    <div>\[
+      X[k] = \sum_{n=0}^{N-1} x[n]\; e^{-j 2\pi kn/N}, \quad k=0,\dots,N-1
+    \]</div>
+    <div class="small">
+      For real-valued \(x[n]\), we typically use rFFT and keep only \(k=0,\dots,\lfloor N/2 \rfloor\).
+      Each coefficient \(X[k]\) is complex and stored as \((\Re(X[k]), \Im(X[k]))\).
+    </div>
+  </div>
+
+  <p class="meta">The inverse (conceptual iDFT) is:</p>
+  <div class="callout">
+    \[
+      x[n] = \frac{1}{N}\sum_{k=0}^{N-1} X[k]\; e^{j 2\pi kn/N}, \quad n=0,\dots,N-1
+    \]
+    <div class="small">
+      In practice, iRFFT reconstructs the real time-series using conjugate symmetry implied by real-valued inputs.
+    </div>
+  </div>
+
+  <h3>6.2 Block Diagram</h3>
+ <div class="imgph" style="text-align:left;">
+  <b style="display:block; margin-bottom:10px;">Block Diagram Placeholder (DFT Pipeline)</b>
+
+  <div style="display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;">
+    <img alt="norm_denorm.png" src="norm_denorm.png"
+         style="max-width:32%; height:auto; display:block; border:1px solid #ddd; background:#fff;" />
+
+    <img alt="raw_dft.png" src="raw_dft.png"
+         style="max-width:32%; height:auto; display:block; border:1px solid #ddd; background:#fff;" />
+
+    <img alt="Only_dft.png" src="Only_dft.png"
+         style="max-width:32%; height:auto; display:block; border:1px solid #ddd; background:#fff;" />
+  </div>
+</div>
+
+  <img alt="dft_pipeline.png" src="results.png"/>
+
+
+  <h3>6.3 Pipeline Summary (Shapes)</h3>
+  <ul>
+    <li><b>Raw past window:</b> <code>x_past ∈ R^{B×L_in×F_raw}</code> = <code>(16,24,2)</code></li>
+    <li><b>rFFT bins (input):</b> <code>N_bins(in) = L_in//2 + 1 = 13</code></li>
+    <li><b>DFT feature width (Re/Im):</b> <code>dft_dim = 2 × F_raw × N_bins(in) = 2×2×13 = 52</code></li>
+    <li><b>Model input (example):</b> <code>(B, L_in, 52)</code> if the DFT vector is repeated per time token (global spectrum per window)</li>
+    <li><b>Model output (raw, normalized):</b> <code>ŷ_raw,norm ∈ R^{B×H×F_raw}</code> = <code>(16,6,2)</code></li>
+    <li><b>Denormalization:</b> apply inverse normalization to recover <code>ŷ_raw</code> in original units</li>
+  </ul>
+
+  <div class="callout">
+    <b>Note on leakage:</b> This is safe at test time as long as the DFT is computed strictly from the past window
+    (no targets / future samples used in feature construction or normalization).
+  </div>
+</section>
+<!-- ===================== END NEW SECTION ===================== --> 
+
+
+  </main>
+</body>
+</html>
