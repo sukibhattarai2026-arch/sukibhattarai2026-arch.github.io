@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solar Flare Prediction Experiments</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      color: #111;
+      background: #fff;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px;
+    }
+
+    h1 {
+      font-size: 30px;
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      margin: 0 0 22px;
+      color: #333;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin: 28px 0 10px;
+    }
+
+    h3 {
+      font-size: 17px;
+      margin: 16px 0 8px;
+    }
+
+    p {
+      margin: 8px 0 12px;
+    }
+
+    ul {
+      margin: 8px 0 14px 22px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .section {
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #444;
+    }
+
+    .placeholder {
+      border: 1px dashed #888;
+      padding: 14px;
+      margin: 12px 0;
+      background: #fafafa;
+      color: #444;
+    }
+
+    .formula {
+      font-family: "Courier New", monospace;
+      background: #f5f5f5;
+      padding: 8px 10px;
+      display: inline-block;
+      margin: 6px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>Solar Flare Prediction Experiments</h1>
+    
+
+    <section class="section">
+      <h2>1) How to Train Your Flare Prediction Model</h2>
+
+      <p>
+        This experiment summarizes the changes made to the training pipeline in order to better align the implementation with the referenced paper.
+        The main modifications were related to the train-test split, normalization strategy, and class balancing.
+      </p>
+
+      <h3>Changes Implemented Based on the Paper</h3>
+      <ul>
+        <li>
+          <span class="label">Temporal partitioning for train and test:</span>
+          To address the issue of temporal coherence, different partitions were used for training and testing.
+          Partition 1 was used for training, and Partition 2 was used for testing.
+        </li>
+
+        <li>
+          <span class="label">Global normalization:</span>
+          Instead of normalizing each window independently, dataset-level normalization was applied.
+          The mean and standard deviation were computed across the full training set and then used to normalize the data.
+        </li>
+
+        <li>
+          <span class="label">Improved undersampling strategy:</span>
+          The dataset was balanced by reducing the number of samples in each class so that all classes had the same count as class X.
+        </li>
+
+        <li>
+          <span class="label">Alternative class-weighting approach mentioned in the paper:</span>
+          The paper states that misclassification weighting may be a better alternative than undersampling.
+          The class weight is given by:
+          <div class="formula">w<sub>j</sub> = n / (k · n<sub>j</sub>)</div>
+          where minority classes receive a larger penalty during training than majority classes.
+        </li>
+      </ul>
+
+      <h3>Results</h3>
+      <p>
+        After applying the changes described above, the following results were obtained.
+      </p>
+
+      <div class="placeholder">
+        <figure class="research-figure">
+        <img alt="comapre_over.png" src="result_afp.png"/>
+        </figure>
+      </div>
+
+      <div class="placeholder">
+        <figure class="research-figure">
+        <img alt="comapre_over.png" src="ar_False_trainingMSE.png" width="32%"/>
+        <img alt="comapre_over.png" src="ar_True_trainingMSE.png" width="32%"/>
+        <img alt="comapre_over.png" src="direct_True_trainingMSE.png" width="32%"/>
+        </figure>
+      </div>
+
+     <div class="placeholder">
+        <figure class="research-figure">
+        <img alt="comapre_over.png" src="ar_False.png" width="52%"/>
+        <img alt="comapre_over.png" src="ar_True.png" width="52%"/>
+        <img alt="comapre_over.png" src="direct_True.png" width="52%"/>
+        </figure>
+      </div>
+
+      <h3>Observation</h3>
+      <p>
+        From the comparison, the best overall results were obtained when <strong>AR = True</strong>.
+        Therefore, a closer inspection of one individual sample was performed.
+      </p>
+
+      <!-- <div class="placeholder">
+        <strong>Placeholder:</strong> Sample comparison images —
+        <code>ar_True_FL_feat0_R_VALUE.png</code>,
+        <code>ar_True_NF_feat0_R_VALUE.png</code>
+      </div> -->
+      <div class="placeholder">
+        <figure class="research-figure">
+        <img alt="comapre_over.png" src="ar_True_NF_feat0_R_VALUE.png" width="72%"/>
+        <img alt="comapre_over.png" src="ar_True_NF_feat0_R_VALUE.png" width="72%"/>
+        </figure>
+      </div>
+    </section>
+    <section class="section">
+  <h2>3) Frequency-Domain and Wavelet-Based Representation</h2>
+
+  <h3>Discrete Fourier Transform (DFT)</h3>
+  <p>
+    The Discrete Fourier Transform (DFT) converts a time-series signal from the
+    time domain into the frequency domain. An example of this transformation is
+    shown in the figure below.
+  </p>
+
+  <p>
+    In the <strong>lossless</strong> case, all frequency coefficients are retained.
+    As a result, the original signal can be reconstructed almost exactly from the
+    transformed representation.
+  </p>
+
+  <div class="placeholder">
+    <figure class="research-figure">
+        <img alt="comapre_over.png" src="DFT_reconstructed.png" />
+        </figure>
+  </div>
+
+  <p>
+    For each frequency bin, the DFT produces a <strong>real</strong> part and an
+    <strong>imaginary</strong> part. From these two components, the
+    <strong>magnitude</strong> and <strong>phase</strong> can be computed.
+  </p>
+
+  <ul>
+    <li>
+      <span class="label">Magnitude:</span>
+      indicates how strongly a particular frequency contributes to the final waveform.
+    </li>
+    <li>
+      <span class="label">Large magnitude at lower frequencies:</span>
+      usually corresponds to slow trends and smooth variations in the signal.
+    </li>
+    <li>
+      <span class="label">Large magnitude at higher frequencies:</span>
+      usually corresponds to rapid fluctuations, sharp changes, or fine details.
+    </li>
+    <li>
+      <span class="label">Phase:</span>
+      indicates the relative shift or starting position of a sinusoidal component.
+    </li>
+  </ul>
+
+  <p>
+    Although the DFT is effective for identifying which frequencies are present in
+    a signal, it does not directly indicate <em>where</em> those frequencies occur
+    in time. In other words, the DFT provides strong frequency information, but
+    limited temporal localization.
+  </p>
+
+  <h3>Wavelet Transform</h3>
+  <p>
+    The wavelet transform addresses this limitation by providing both
+    <strong>time localization</strong> and <strong>scale-based frequency information</strong>.
+    Unlike the DFT, which represents the entire signal using global sinusoidal
+    components, wavelets analyze the signal using localized basis functions.
+  </p>
+
+  <p>
+    The continuous wavelet transform can be written as:
+  </p>
+
+  <div class="formula">
+    W(a,b) = (1 / √|a|) ∫ x(t) ψ* ((t - b) / a) dt
+  </div>
+
+  <p>
+    where <strong>a</strong> is the scale parameter, <strong>b</strong> is the
+    translation parameter, and <strong>ψ</strong> is the mother wavelet.
+  </p>
+
+  <p>
+    For a function to qualify as a wavelet, it must satisfy the admissibility condition,
+    which ensures that the original signal can be reconstructed from its wavelet coefficients.
+  </p>
+
+  <div class="placeholder">
+    <figure class="research-figure">
+        <img alt="comapre_over.png" src="wavelet_transform.png" width="72%"/>
+        <img alt="comapre_over.png" src="wavelets.png" width="72%"/>
+        </figure>
+  </div>
+
+  <p>
+    In the discrete wavelet transform, the signal is passed through a
+    <strong>low-pass filter</strong> and a <strong>high-pass filter</strong>.
+  </p>
+
+  <ul>
+    <li>
+      <span class="label">Low-pass filter:</span>
+      produces the approximation coefficients, which represent a localized and
+      downsampled coarse version of the original signal.
+    </li>
+    <li>
+      <span class="label">High-pass filter:</span>
+      produces the detail coefficients, which capture and localize the
+      higher-frequency variations in the signal.
+    </li>
+  </ul>
+</section>
+
+    <section class="section">
+      <h2>2) Time Series Decomposition Using Wavelet and Fourier Transforms for Enhanced Solar Flare Forecasting</h2>
+
+      <h3>What is this experiment about?</h3>
+      <p>
+        This study compares whether raw time-series input or decomposed input performs better for solar flare classification.
+        The decomposed representations include both wavelet-based methods and the Fourier transform.
+      </p>
+
+      <p>
+        The wavelet-based methods considered are <strong>Haar</strong>, <strong>Symlets</strong>, and <strong>Daubechies</strong>.
+        In addition, the Discrete Fourier Transform (DFT) is also applied.
+      </p>
+      <ul>
+  <li>
+    Wavelet Transform
+    <ul>
+      <li>
+        Haar
+        <ul>
+          <li>Lossless</li>
+          <li>Lossy</li>
+        </ul>
+      </li>
+      <li>
+        Symlets
+        <ul>
+          <li>Lossless</li>
+          <li>Lossy</li>
+        </ul>
+      </li>
+      <li>
+        Daubechies
+        <ul>
+          <li>Lossless</li>
+          <li>Lossy</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Discrete Fourier Transform</li>
+  <ul>
+          <li>Lossless</li>
+          <li>Lossy</li>
+        </ul>
+</ul>
+
+      <p>
+        The study also compares <strong>lossless</strong> and <strong>lossy</strong> reconstruction, and shows that after applying a low-pass filter,
+        the lossy reconstruction can outperform the lossless version incase of the DFT.
+        However, the final results show that the original time-series data still performs better than the decomposed representation overall.
+      </p>
+
+      <h3>Features Used</h3>
+      <p>
+        The following five features are used:
+        <strong>TOTUSJH, TOTBSQ, TOTPOT, TOTUSJZ,</strong> and <strong>ABSNJZH</strong>.
+      </p>
+
+      <h3>Train-Test Setup</h3>
+      <p>
+        Partition 1 is used for training, while all remaining partitions are used for testing.
+      </p>
+
+      <h3>Methodology</h3>
+      <div class="placeholder">
+        <figure class="research-figure">
+        <img alt="comapre_over.png" src="methodology.png" width="72%"/>
+        </figure>
+      </div>
+      <ul>
+        <li>The SWAN-SF dataset is used for the experiment.</li>
+        <li>Partition 1 is treated as the training set, and all remaining partitions are treated as the test set.</li>
+        <li>The data is normalized before training.</li>
+        <li>Non-flare (NF) instances are undersampled to better balance the dataset with flare samples.</li>
+        <li>
+          It is not clearly specified whether this undersampling exactly follows the strategy used in the reference classifier paper,
+          especially with respect to balancing based on class K.
+        </li>
+      </ul>
+
+      <h3>Normalization</h3>
+      <p>
+        Robust scaling is used instead of standard normalization.
+        This means that the data is normalized using the <strong>median</strong> and the <strong>interquartile range (IQR)</strong>,
+        which makes the method more resistant to outliers.
+      </p>
+
+      <div class="formula">
+        x' = (x - median) / IQR
+      </div>
+
+      <div class="formula">
+        IQR = Q<sub>75</sub> - Q<sub>25</sub>
+      </div>
+
+      <h3>Decomposition and Reconstruction</h3>
+      <p>
+        After hyperparameter tuning, wavelet transforms and the DFT are applied.
+        The TSF model is trained on both lossless and lossy reconstructed data.
+      </p>
+
+      <p>
+        For the lossy case, a <strong>low-pass filter</strong> is used so that dominant frequency components are preserved.
+        The reconstructed data is then compared with the original time series.
+      </p>
+
+      <p>
+        In parallel, the RF model uses NTS data derived from the decomposed components.
+        This produces both lossless and lossy reconstructions, depending on whether filtering is applied.
+      </p>
+
+      <h3>Results: Key Points</h3>
+      <div class="placeholder">
+        <figure class="research-figure">
+        <img alt="comapre_over.png" src="result_vic.png" width="72%"/>
+        <img alt="comapre_over.png" src="ts_nts_comp.png" width="72%"/>
+
+        </figure>
+      </div>
+      <ul>
+        <li>
+          <span class="label">Lossless reconstruction:</span>
+          The lossless reconstructed signals produce TSS and HSS values similar to those obtained from the original time series.
+          This is expected because the reconstruction is effectively an exact replica of the original signal.
+        </li>
+
+        <li>
+          <span class="label">Lossy reconstruction with low-pass filtering:</span>
+          A low-pass filter is used to determine which components should be retained and which should be removed.
+        </li>
+
+        <li>
+          For flaring data, an SNR of <strong>20 dB</strong> is considered when selecting the retain ratio for the low-pass filter.
+        </li>
+
+        <li>
+          The retain ratio corresponding to the selected SNR is then used to reconstruct the original time series.
+        </li>
+
+        <li>
+          The lossy version produces better <strong>TSS</strong> and <strong>HSS</strong> values than the lossless version for the TSF model.
+        </li>
+
+        <li>
+          When comparing the original time-series data (TS) with the non-time-series representation (NTS),
+          the original TS performs better in both TSS and HSS.
+        </li>
+      </ul>
+
+      <h3>Interpretation</h3>
+      <p>
+        The original time-series data performs better because it preserves the temporal structure of solar activity,
+        which is important for modeling flare evolution.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
