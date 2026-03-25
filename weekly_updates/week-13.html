@@ -1,0 +1,193 @@
+<div class="section">
+  <h2>Wavelet Transform — Part 1</h2>
+
+  <h3>Why is the Wavelet Transform Important?</h3>
+  <p>
+    The Fourier Transform tells us <b>which frequencies</b> are present in a signal,
+    but it does not tell us <b>when</b> those frequencies occur.
+    In other words, it has strong frequency resolution, but no localization in time.
+  </p>
+
+  <p>
+    To address this limitation, time-frequency methods such as the
+    <b>Short-Time Fourier Transform (STFT)</b> and the <b>Wavelet Transform</b>
+    are used.
+  </p>
+   
+  <div class="image-placeholder">
+    <figure class="research-figure">
+        <img alt="comapre_over.png" src="wavelet.png" width="72%"/>
+        </figure>
+  </div>
+  <p>
+    In STFT, the signal is divided into small time windows, and the Fourier Transform
+    is applied inside each window. This allows us to know that an event occurs
+    within a certain window, but not its exact location inside that window.
+  </p>
+
+  <p>
+    The main limitation of STFT is that the window size is fixed.
+    A longer window gives better frequency resolution but poorer time resolution.
+    A shorter window gives better time resolution but poorer frequency resolution.
+    This creates a trade-off that cannot adapt to all parts of the signal equally well.
+  </p>
+
+  <p>
+    The Wavelet Transform improves this by using <b>multi-resolution analysis</b>.
+    Instead of a single fixed window, it uses large windows for low-frequency components
+    and small windows for high-frequency components.
+  </p>
+
+  <p>
+    This is useful because high-frequency components usually correspond to
+    short-duration events, so they need better time localization.
+    Low-frequency components vary more slowly, so they benefit more from better
+    frequency resolution.
+  </p>
+
+  <p>
+    Therefore, the Wavelet Transform provides a more adaptive time-frequency
+    representation of the signal.
+  </p>
+
+  <div class="image-placeholder">
+    <figure class="research-figure">
+        <!-- <img alt="comapre_over.png" src="wavelet_transform.png" width="72%"/> -->
+        <img alt="comapre_over.png" src="Fre_re_tim_res.png" width="72%"/>
+        </figure>
+  </div>
+
+  <h3>Intuition Behind Haar, Symlets, and Daubechies Wavelets</h3>
+  <p>
+    Among these wavelet families, <b>Haar</b> is the simplest.
+    It works by taking neighboring samples and computing two quantities:
+    the <b>average</b>, which forms the approximation coefficients,
+    and the <b>difference</b>, which forms the detail coefficients.
+  </p>
+
+  <p>
+    This makes Haar easy to understand and computationally efficient.
+    However, because it is piecewise constant, it is less smooth than other
+    wavelet families.
+  </p>
+
+  <p>
+    <b>Daubechies</b> wavelets are more sophisticated.
+    Instead of using only immediate neighbors, they use longer filter coefficients
+    to capture more of the signal structure.
+    As a result, they represent trends and smooth variations better than Haar.
+  </p>
+
+  <p>
+    <b>Symlets</b> are closely related to Daubechies wavelets.
+    They are designed to be more symmetric while still preserving the main advantages
+    of the Daubechies family.
+    This often gives a better balance between compact support and symmetry.
+  </p>
+
+  <p>
+    In implementation terms, Haar can be understood directly through local averages
+    and differences, whereas Daubechies and Symlets are usually described through
+    <b>low-pass and high-pass filter coefficients</b> applied recursively to the signal.
+  </p>
+
+  <div class="image-placeholder">
+   <figure class="research-figure">
+        <!-- <img alt="comapre_over.png" src="wavelet_transform.png" width="72%"/> -->
+        <img alt="comapre_over.png" src="wavelets.png" width="72%"/>
+        </figure>
+  </div>
+
+  <h3>Time-Frequency Behavior in Solar Flare Data</h3>
+  <p>
+    For solar flare data, time-frequency analysis is important because the signal
+    can contain both slow-varying trends and sudden bursts of activity.
+  </p>
+
+  <p>
+    A wavelet-based representation helps separate these behaviors across scales.
+    Low-frequency components capture the overall long-term variation,
+    while high-frequency components highlight rapid changes and localized events
+    that may correspond to flare activity.
+  </p>
+
+  <p>
+    This makes the Wavelet Transform especially useful for analyzing non-stationary
+    scientific signals such as solar observations.
+  </p>
+
+  <div class="image-placeholder">
+   <figure class="research-figure">
+        <!-- <img alt="comapre_over.png" src="wavelet_transform.png" width="72%"/> -->
+        <img alt="comapre_over.png" src="res_solardata.png" width="72%"/>
+        </figure>
+  </div>
+
+  <h3>Plot of Haar Coefficients</h3>
+  <p>
+    Once the Haar transform is applied, the signal is decomposed into
+    <b>approximation coefficients</b> and <b>detail coefficients</b>.
+  </p>
+
+  <p>
+    The approximation coefficients represent the coarse, low-frequency structure
+    of the signal, while the detail coefficients represent rapid changes,
+    edges, or localized fluctuations.
+  </p>
+
+  <p>
+    By plotting these coefficients, we can visually identify where the signal
+    changes sharply and where it remains smooth.
+    This is one of the reasons Haar wavelets are useful for detecting abrupt
+    events in time-series data.
+  </p>
+
+  <div class="image-placeholder">
+    <figure class="research-figure">
+        <img alt="comapre_over.png" src="HAAR_decomposition.png" width="72%"/>
+        </figure>
+  </div>
+
+<h2>Classification for the time series dataset — Part 2</h2>
+<h3>GCTAF Global Cross TIme fusion Architecture- With Supervised Contrastive loss</h3>
+  <div class="image-placeholder">
+    <figure class="research-figure">
+        <img alt="comapre_over.png" src="GCTAF architecture.png" width="72%"/>
+        </figure>
+  </div>
+<h3>Supervised contrastive loss formula</h3>
+        <script>
+        MathJax = {
+            tex: {
+            inlineMath: [['\\(', '\\)']],
+            displayMath: [['\\[', '\\]']]
+            }
+        };
+        </script>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+        <div class="equation">
+        \[
+        \mathcal{L}_{i} =
+        -\frac{1}{|P(i)|}\sum_{p\in P(i)}
+        \log
+        \frac{\exp(\mathbf{z}_i^\top \mathbf{z}_p / \tau)}
+        {\sum\limits_{a\neq i}\exp(\mathbf{z}_i^\top \mathbf{z}_a / \tau)}
+        \]
+        </div>
+<h3>Results </h3>
+
+<div class="image-placeholder">
+    <figure class="research-figure">
+        <img alt="comapre_over.png" src="results_GCTAF12.png" width="72%"/>
+        </figure>
+  </div>
+
+  
+<div class="image-placeholder">
+    <figure class="research-figure">
+        <img alt="comapre_over.png" src="hss_tss_comparison.png" width="72%"/>
+        </figure>
+  </div>
+
+</div>
