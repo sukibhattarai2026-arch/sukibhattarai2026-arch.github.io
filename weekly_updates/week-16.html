@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Week 16 — May 7</title>
+
+  <style>
+    :root {
+      --bg: #f9fafb;        /* soft near-white background */
+      --panel: #e6edf3;     /* light pastel blue/grey panels */
+      --text: #1a1c1e;      /* dark but not harsh black text */
+      --muted: #6b7280;     /* muted grey for secondary text */
+      --accent: #3b82f6;    /* gentle blue accent */
+      --ring: rgba(59, 130, 246, 0.3); /* subtle highlight for focus rings */
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .title {
+      font-size: clamp(28px, 3vw, 40px);
+      margin: 0 0 8px;
+    }
+
+    .sub {
+      color: var(--muted);
+      margin: 0 0 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.35);
+    }
+
+    .sidebar { padding: 8px; }
+
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 8px;
+      max-height: 70vh;
+      overflow: auto;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      margin: 6px 0;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .btn:hover { background: rgba(255,255,255,.04); }
+    .btn[aria-current="true"] { background: rgba(79,163,255,.08); border-color: var(--ring); }
+
+    .content { padding: 20px 24px; }
+    .content h2 { margin-top: 0; }
+    .muted { color: var(--muted); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      text-align: left;
+    }
+
+    code {
+      background: rgba(255,255,255,.08);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    a { color: var(--accent); }
+
+    ul { line-height: 1.6; }
+
+    .placeholder-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 16px 0 20px;
+    }
+
+    .placeholder-single {
+      margin: 16px 0 20px;
+    }
+
+    .ph {
+      min-height: 180px;
+      border: 2px dashed rgba(26, 28, 30, 0.25);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 18px;
+      background: rgba(255,255,255,.28);
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .ph.tall { min-height: 240px; }
+
+    .result-box { margin-top: 14px; }
+    .result-box .ph { min-height: 160px; }
+
+    .research-figure {
+      margin: 0;
+    }
+
+    .research-figure img {
+      width: 100%;
+      border-radius: 12px;
+      display: block;
+      background: rgba(255,255,255,.28);
+    }
+
+    .caption {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    hr {
+      border: 0;
+      border-top: 1px solid rgba(26, 28, 30, 0.12);
+      margin: 24px 0;
+    }
+
+    @media (max-width: 900px) {
+      .placeholder-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <h1 class="title">Weekly Updates</h1>
+    <p class="sub"><a href="index.html">← Back to split index</a> <span class="muted">|</span> <a href="../index.html">Open original single-file view</a></p>
+
+    <section class="panel content">
+      <h2>Week 16 — May 7</h2>
+      <p class="muted">Sampling Strategy Analysis with Contrastive Learning</p>
+
+      <hr/>
+
+      <h2>Method and Observation</h2>
+
+      <ul>
+        <li>
+          I used supervised contrastive learning to form clusters of flare and non-flare under different sampling strategies.
+        </li>
+
+        <li>
+          Visualization of embedding space using t-SNE for each case.
+        </li>
+
+        <li>
+          Then computed centroid for each class.
+        </li>
+
+        <li>
+          During inference, classification is done based on distance to centroids.
+        </li>
+
+        <li>
+          Undersampling performs better compared to oversampling and no sampling.
+        </li>
+
+        <li>
+          This trend is consistent across different partitions and setups.
+        </li>
+      </ul>
+
+      <h2>Embedding Visualization</h2>
+
+      <div class="placeholder-grid">
+        <figure class="research-figure">
+          <img src="tsne_imbalance.png" alt="Imbalanced Data"/>
+          <figcaption class="caption">Imbalanced Data</figcaption>
+        </figure>
+
+        <figure class="research-figure">
+          <img src="tsne_oversampling.png" alt="Oversampling"/>
+          <figcaption class="caption">Oversampling</figcaption>
+        </figure>
+
+        <figure class="research-figure">
+          <img src="tsne_undersampling.png" alt="Undersampling"/>
+          <figcaption class="caption">Undersampling</figcaption>
+        </figure>
+      </div>
+
+      <h2>Results</h2>
+
+      <div class="placeholder-single result-box">
+        <figure class="research-figure">
+          <img src="results_sampling.png" alt="Sampling Results"/>
+          <figcaption class="caption">Performance Comparison</figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
